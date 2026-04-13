@@ -25,11 +25,11 @@
   .shrf-bub{max-width:84%;padding:8px 12px;border-radius:16px;font-size:13px;line-height:1.55;}
   .shrf-msg.ai .shrf-bub{background:#e8f4ff;color:#1a3a5c;border-radius:4px 16px 16px 16px;border:1px solid #d0e8f8;}
   .shrf-msg.u .shrf-bub{background:#1A7EC8;color:#fff;border-radius:16px 4px 16px 16px;}
-  .shrf-pc{background:#fff;border:1.5px solid #d0e8f8;border-radius:12px;margin-top:8px;overflow:hidden;display:block;text-decoration:none;}
-  .shrf-pc:hover{border-color:#1A7EC8;}
-  .shrf-pc img{width:100%;height:120px;object-fit:contain;background:#f0f8ff;padding:8px;display:block;}
+  .shrf-pc{background:#fff;border:1.5px solid #d0e8f8;border-radius:12px;margin-top:8px;overflow:hidden;display:block;text-decoration:none;cursor:pointer;}
+  .shrf-pc:hover{border-color:#1A7EC8;box-shadow:0 4px 12px rgba(26,126,200,.15);}
+  .shrf-pc img{width:100%;height:130px;object-fit:contain;background:#f0f8ff;padding:10px;display:block;box-sizing:border-box;}
   .shrf-pc-body{padding:8px 10px 10px;}
-  .shrf-pc-brand{font-size:9px;color:#7ab8d8;text-transform:uppercase;letter-spacing:.5px;}
+  .shrf-pc-brand{font-size:9px;color:#7ab8d8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
   .shrf-pc-name{font-size:11px;font-weight:600;color:#1a3a5c;line-height:1.4;margin:2px 0 5px;}
   .shrf-pc-row{display:flex;align-items:center;justify-content:space-between;}
   .shrf-pc-price{font-size:13px;font-weight:700;color:#1A7EC8;}
@@ -51,8 +51,6 @@
 </style>
 </head>
 <body style="margin:0;background:#f5f5f5;min-height:100vh;">
-
-<!-- Load product catalog -->
 <script src="/catalog.js"></script>
 
 <button id="shrf-btn" onclick="togglePanel()">
@@ -106,7 +104,6 @@
 var API_URL='/api/chat';
 var chatHistory=[],busy=false,panelOpen=false;
 
-// Show Merhaba bubble after 1 minute
 setTimeout(function(){
   if(!panelOpen){
     var b=document.getElementById('shrf-bub');
@@ -115,7 +112,6 @@ setTimeout(function(){
   }
 },60000);
 
-// Smart product search
 function searchCat(q){
   if(typeof CAT==='undefined')return[];
   var terms=q.toLowerCase().split(' ').filter(function(t){return t.length>1;});
@@ -155,7 +151,9 @@ function addMsg(html,who){
 function buildCards(products){
   var html='';
   products.forEach(function(p){
+    var img=p.i?'<img src="'+p.i+'" alt="'+p.n+'" onerror="this.style.display=\'none\'"/>':'';
     html+='<a class="shrf-pc" href="'+(p.u||'#')+'" target="_blank">'
+      +img
       +'<div class="shrf-pc-body">'
       +'<div class="shrf-pc-brand">'+(p.b||'')+'</div>'
       +'<div class="shrf-pc-name">'+(p.n||'')+'</div>'
@@ -198,14 +196,10 @@ function doSend(){
   addMsg(t,'u');
   document.getElementById('shrf-chips').innerHTML='';
   showTyping();
-
-  // Search products locally - instant!
   var matches=searchCat(t);
-  var ctx=matches.length>0?'CATALOG MATCHES:\n'+matches.map(function(p){return p.n+'|'+p.p+'|'+(p.b||'')+'|URL:'+p.u+'|CAT:'+(p.c||'');}).join('\n'):'No matching products found.';
-
+  var ctx=matches.length>0?'CATALOG MATCHES:\n'+matches.map(function(p){return p.n+'|'+p.p+'|'+(p.b||'')+'|URL:'+p.u+'|IMG:'+p.i+'|CAT:'+(p.c||'');}).join('\n'):'No matching products found.';
   chatHistory.push({role:'user',content:t+'\n\n'+ctx});
   if(chatHistory.length>10)chatHistory=chatHistory.slice(-10);
-
   fetch(API_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
