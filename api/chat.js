@@ -1,4 +1,3 @@
-
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
@@ -45,21 +44,35 @@ Founded 2014 | 150+ brands | 3000+ products
 6. Magusa: see https://www.sharafstore.com/en/store-locator
 
 === TAX FREE ===
-Page: https://www.sharafstore.com/en/tax-free
 Foreign nationals can claim VAT refund. Show passport at purchase.
-Upload approved invoice: https://www.sharafstore.com/en/onayli-belge-gonderimi
 
 === DELIVERY ===
 KKTC only | Free over 10000 TL | 3-5 business days | 2 year warranty
-Deals: https://www.sharafstore.com/en/firsat-kosesi
-After-sales: https://www.sharafstore.com/en/our-services
-Refund policy: https://www.sharafstore.com/en/geri-odeme-politikasi
 
-=== YOUR JOB ===
-Reply helpfully to customer questions about products, stores, delivery, tax free.
-Reply ONLY in valid JSON:
-{"reply":"1-2 sentences in user language","products":[],"chips":["chip1","chip2","chip3"]}
-Rules: Never invent products. Mention Vergi Iadesi for products over 20000 TL. KKTC delivery only.`,
+=== CRITICAL RESPONSE FORMAT ===
+You will receive CATALOG MATCHES in the user message. Use ONLY those products.
+Reply ONLY with valid JSON using EXACTLY these field names:
+{
+  "reply": "1-2 sentences in user language",
+  "products": [
+    {
+      "n": "exact product name from catalog",
+      "p": "exact price from catalog",
+      "u": "exact full URL from catalog starting with https://",
+      "i": "exact image URL from catalog",
+      "b": "brand name"
+    }
+  ],
+  "chips": ["suggestion1", "suggestion2", "suggestion3"]
+}
+
+RULES:
+- Field names MUST be: n, p, u, i, b (short names exactly)
+- ONLY use products from CATALOG MATCHES - never invent
+- URL must be the full https://sharafstore.com/... URL from catalog
+- Image must be the full https://sharafstore.com/web/image/... URL from catalog
+- Mention Vergi Iadesi for products over 20000 TL
+- If no catalog matches, reply helpfully about store/delivery but return empty products array`,
         messages: body.messages,
       }),
     });
