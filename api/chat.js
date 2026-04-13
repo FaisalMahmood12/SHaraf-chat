@@ -30,61 +30,53 @@ export default async function handler(req) {
         max_tokens: 1000,
         system: `You are SHARAF AI - official AI shopping assistant for Sharaf Electro KKTC (sharafstore.com).
 
-=== STORE INFO ===
-Website: https://sharafstore.com | Email: info@sharafstore.com
-WhatsApp: +90 533 850 8819 | Phone: +90 533 850 8820
-Founded 2014 | 150+ brands | 3000+ products
+STORE INFO:
+Website: https://sharafstore.com | WhatsApp: +90 533 850 8819 | Phone: +90 533 850 8820
+6 stores in KKTC | 150+ brands | 3000+ products | Free delivery over 10000 TL | 2 year warranty
 
-=== 6 STORES ===
-1. Dereboyu/Lefkosa: Avenue AVM, Mehmet Akif Cd No:1-2 | Tel: +90 542 877 33 20 | 10:00-19:00
-2. Girne: Elektrokur Karsisi, Ecevit Cd No:14 | Tel: +90 542 886 74 86 | 10:00-19:00
-3. Guzelyurt: Orange Mall AVM 2.kat | Tel: +90 548 836 66 90 | 10:00-21:00 (7 days)
-4. Alsancak/Girne: Karaoglanoglu Cd Yayla No:37 | Tel: +90 542 886 45 45 | 10:00-19:00
-5. Cataloy: Besparmaklar Cd No:92 | Tel: +90 548 837 66 94 | 10:00-19:00
-6. Magusa: see https://www.sharafstore.com/en/store-locator
+YOUR RESPONSE RULES - VERY IMPORTANT:
+1. You MUST respond with ONLY a raw JSON object - no markdown, no backticks, no code blocks
+2. Start your response with { and end with }
+3. Use EXACTLY these short field names: n, p, u, i, b
+4. Only use products from CATALOG MATCHES provided in user message
+5. Never invent products or URLs
 
-=== TAX FREE ===
-Foreign nationals can claim VAT refund. Show passport at purchase.
+EXACT JSON FORMAT (copy this structure):
+{"reply":"Your helpful reply here","products":[{"n":"product name","p":"price TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"brand"}],"chips":["chip1","chip2","chip3"]}
 
-=== DELIVERY ===
-KKTC only | Free over 10000 TL | 3-5 business days | 2 year warranty
-
-=== CRITICAL RESPONSE FORMAT ===
-You will receive CATALOG MATCHES in the user message. Use ONLY those products.
-Reply ONLY with valid JSON using EXACTLY these field names:
-{
-  "reply": "1-2 sentences in user language",
-  "products": [
-    {
-      "n": "exact product name from catalog",
-      "p": "exact price from catalog",
-      "u": "exact full URL from catalog starting with https://",
-      "i": "exact image URL from catalog",
-      "b": "brand name"
-    }
-  ],
-  "chips": ["suggestion1", "suggestion2", "suggestion3"]
-}
-
-RULES:
-- Field names MUST be: n, p, u, i, b (short names exactly)
-- ONLY use products from CATALOG MATCHES - never invent
-- URL must be the full https://sharafstore.com/... URL from catalog
-- Image must be the full https://sharafstore.com/web/image/... URL from catalog
-- Mention Vergi Iadesi for products over 20000 TL
-- If no catalog matches, reply helpfully about store/delivery but return empty products array`,
+If no products found return: {"reply":"Your reply","products":[],"chips":["chip1","chip2","chip3"]}`,
         messages: body.messages,
       }),
     });
 
     const data = await response.json();
 
-    return new Response(JSON.stringify(data), {
+    // Extract text and clean any accidental markdown
+    let raw = '';
+    if (data && data.content) {
+      data.content.forEach(b => { if (b.type === 'text') raw += b.text; });
+    }
+    
+    // Strip markdown code blocks if AI added them anyway
+    raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    
+    // Find JSON object start and end
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if (start !== -1 && end !== -1) {
+      raw = raw.substring(start, end + 1);
+    }
+
+    // Return cleaned response
+    const cleanData = { ...data, content: [{ type: 'text', text: raw }] };
+
+    return new Response(JSON.stringify(cleanData), {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
     });
+
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
