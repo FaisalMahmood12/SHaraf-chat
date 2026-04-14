@@ -1,35 +1,9 @@
 {
-  "version": 2,
+  "outputDirectory": "public",
   "builds": [
     {
       "src": "api/chat.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/chat",
-      "dest": "/api/chat.js"
-    },
-    {
-      "src": "/widget.js",
-      "dest": "/widget.js",
-      "headers": {
-        "Content-Type": "application/javascript",
-        "Access-Control-Allow-Origin": "*"
-      }
-    },
-    {
-      "src": "/catalog.js",
-      "dest": "/catalog.js",
-      "headers": {
-        "Content-Type": "application/javascript",
-        "Access-Control-Allow-Origin": "*"
-      }
     }
   ]
 }
