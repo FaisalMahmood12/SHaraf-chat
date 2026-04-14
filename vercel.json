@@ -1,9 +1,0 @@
-{
-  "outputDirectory": "public",
-  "builds": [
-    {
-      "src": "api/chat.js",
-      "use": "@vercel/node"
-    }
-  ]
-}
