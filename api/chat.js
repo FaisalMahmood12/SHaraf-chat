@@ -34,40 +34,43 @@ STORE INFO:
 Website: https://sharafstore.com | WhatsApp: +90 533 850 8819 | Phone: +90 533 850 8820
 6 stores in KKTC | 150+ brands | 3000+ products | Free delivery over 10000 TL | 2 year warranty
 
+WHEN USER SENDS AN IMAGE:
+- Identify what product is shown in the image
+- Search the CATALOG MATCHES for similar or identical products
+- Recommend the best matching products from catalog
+- If no exact match, suggest closest alternatives
+
 YOUR RESPONSE RULES - VERY IMPORTANT:
-1. You MUST respond with ONLY a raw JSON object - no markdown, no backticks, no code blocks
+1. Respond with ONLY a raw JSON object - no markdown, no backticks, no code blocks
 2. Start your response with { and end with }
 3. Use EXACTLY these short field names: n, p, u, i, b
-4. Only use products from CATALOG MATCHES provided in user message
-5. Never invent products or URLs
+4. Only use products from CATALOG MATCHES
 
-EXACT JSON FORMAT (copy this structure):
+EXACT JSON FORMAT:
 {"reply":"Your helpful reply here","products":[{"n":"product name","p":"price TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"brand"}],"chips":["chip1","chip2","chip3"]}
 
-If no products found return: {"reply":"Your reply","products":[],"chips":["chip1","chip2","chip3"]}`,
+If no products found: {"reply":"Your reply","products":[],"chips":["chip1","chip2","chip3"]}`,
         messages: body.messages,
       }),
     });
 
     const data = await response.json();
 
-    // Extract text and clean any accidental markdown
     let raw = '';
     if (data && data.content) {
       data.content.forEach(b => { if (b.type === 'text') raw += b.text; });
     }
-    
-    // Strip markdown code blocks if AI added them anyway
+
+    // Strip markdown code blocks
     raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    
-    // Find JSON object start and end
+
+    // Extract JSON object
     const start = raw.indexOf('{');
     const end = raw.lastIndexOf('}');
     if (start !== -1 && end !== -1) {
       raw = raw.substring(start, end + 1);
     }
 
-    // Return cleaned response
     const cleanData = { ...data, content: [{ type: 'text', text: raw }] };
 
     return new Response(JSON.stringify(cleanData), {
