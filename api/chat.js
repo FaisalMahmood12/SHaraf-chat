@@ -38,9 +38,8 @@ WHEN USER SENDS AN IMAGE:
 - Identify what product is shown in the image
 - Search the CATALOG MATCHES for similar or identical products
 - Recommend the best matching products from catalog
-- If no exact match, suggest closest alternatives
 
-YOUR RESPONSE RULES - VERY IMPORTANT:
+YOUR RESPONSE RULES:
 1. Respond with ONLY a raw JSON object - no markdown, no backticks, no code blocks
 2. Start your response with { and end with }
 3. Use EXACTLY these short field names: n, p, u, i, b
@@ -49,7 +48,7 @@ YOUR RESPONSE RULES - VERY IMPORTANT:
 EXACT JSON FORMAT:
 {"reply":"Your helpful reply here","products":[{"n":"product name","p":"price TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"brand"}],"chips":["chip1","chip2","chip3"]}
 
-If no products found: {"reply":"Your reply","products":[],"chips":["chip1","chip2","chip3"]}`,
+If no products: {"reply":"Your reply","products":[],"chips":["chip1","chip2","chip3"]}`,
         messages: body.messages,
       }),
     });
@@ -61,15 +60,10 @@ If no products found: {"reply":"Your reply","products":[],"chips":["chip1","chip
       data.content.forEach(b => { if (b.type === 'text') raw += b.text; });
     }
 
-    // Strip markdown code blocks
     raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-
-    // Extract JSON object
     const start = raw.indexOf('{');
     const end = raw.lastIndexOf('}');
-    if (start !== -1 && end !== -1) {
-      raw = raw.substring(start, end + 1);
-    }
+    if (start !== -1 && end !== -1) raw = raw.substring(start, end + 1);
 
     const cleanData = { ...data, content: [{ type: 'text', text: raw }] };
 
