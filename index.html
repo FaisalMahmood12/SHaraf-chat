@@ -245,7 +245,11 @@ function send(){
   var ctx=matches.length?('KATALOG:'+matches.map(function(p){return p.n+'|'+p.p+'|'+(p.b||'')+'|URL:'+p.u+'|IMG:'+(p.i||'');}).join('|')):'Eslesme yok.';
 
   if(ib){
-    var imgPrompt='GOREV: Bu resimdeki urunu tani. Marka ve model belirle. Katalogda bul ve goster. Katalog disinda urun uretme. '+(t||'')+' '+ctx;
+    // Send ALL catalog products as searchable list for image queries
+    // This gives Claude maximum chance to find the right product
+    var allProds=typeof CAT!=='undefined'?CAT.slice(0,300):[];
+    var catList=allProds.map(function(p){return p.n+'|'+p.p+'|'+(p.b||'')+'|'+p.u+'|'+(p.i||'');}).join('\n');
+    var imgPrompt='GOREV: Bu resimdeki urunu tani. Marka, model ve urun tipini belirle. Asagidaki KATALOG listesinde bu urunu bul. En iyi eslesmeyi sec ve JSON formatinda don. Katalog disinda urun uretme.\n\nKullanici notu: '+(t||'Yok')+'\n\nKATALOG:\n'+catList;
     content=[
       {type:'image',source:{type:'base64',media_type:it,data:ib}},
       {type:'text',text:imgPrompt}
