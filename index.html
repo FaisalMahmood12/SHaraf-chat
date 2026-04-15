@@ -250,14 +250,10 @@ function send(){
   var ctx=matches.length?('KATALOG:'+matches.map(function(p){return p.n+'|'+p.p+'|'+(p.b||'')+'|URL:'+p.u+'|IMG:'+(p.i||'');}).join('|')):'Eslesme yok.';
 
   if(ib){
-    // Send ALL catalog products as searchable list for image queries
-    // This gives Claude maximum chance to find the right product
-    var allProds=typeof CAT!=='undefined'?CAT.slice(0,300):[];
-    var catList=allProds.map(function(p){return p.n+'|'+p.p+'|'+(p.b||'')+'|'+p.u+'|'+(p.i||'');}).join('\n');
-    var imgPrompt='GOREV: Bu resimdeki urunu tani. Marka, model ve urun tipini belirle. Asagidaki KATALOG listesinde bu urunu bul. En iyi eslesmeyi sec ve JSON formatinda don. Katalog disinda urun uretme.\n\nKullanici notu: '+(t||'Yok')+'\n\nKATALOG:\n'+catList;
+    var imgTxt='Resimde ne var? Marka, urun tipi ve modeli belirle. Katalogdan bul veya benzer oner. '+(t||'');
     content=[
       {type:'image',source:{type:'base64',media_type:it,data:ib}},
-      {type:'text',text:imgPrompt}
+      {type:'text',text:imgTxt}
     ];
   } else {
     content=t+' '+ctx;
@@ -269,7 +265,7 @@ function send(){
   fetch(API,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({messages:history})
+    body:JSON.stringify({messages:history,catalog:typeof CAT!=='undefined'?CAT:[]})
   })
   .then(function(r){return r.json();})
   .then(function(data){
