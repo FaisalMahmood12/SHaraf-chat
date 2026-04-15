@@ -1,86 +1,81 @@
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
-  }
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+  if (req.method === 'OPTIONS') return new Response(null, { status: 200, headers: cors });
+  if (req.method !== 'POST') return new Response('Not allowed', { status: 405, headers: cors });
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return new Response(JSON.stringify({ error: 'API key missing' }), { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } });
 
   try {
     const body = await req.json();
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1000,
-        system: `You are SHARAF AI - official AI shopping assistant for Sharaf Electro KKTC (sharafstore.com).
+        system: `Sen SHARAF AI'sin - Sharaf Electro KKTC'nin resmi alisveris asistanisin (sharafstore.com).
 
-STORE INFO:
-Website: https://sharafstore.com | WhatsApp: +90 533 850 8819 | Phone: +90 533 850 8820
-6 stores in KKTC | 150+ brands | 3000+ products | Free delivery over 10000 TL | 2 year warranty
+MAGAZA: sharafstore.com | WhatsApp: +90 533 850 8819 | Tel: +90 533 850 8820
+KKTC'de 6 magaza | 150+ marka | 3000+ urun | 10.000 TL uzeri ucretsiz kargo | 2 yil garanti
 
-WHEN USER SENDS AN IMAGE:
-- Identify what product is shown in the image
-- Search the CATALOG MATCHES for similar or identical products
-- Recommend the best matching products from catalog
+MAGAZALAR:
+1. Dereboyu/Lefkosa: Avenue AVM | Tel: +90 542 877 33 20 | 10:00-19:00
+2. Girne: Ecevit Cd No:14 | Tel: +90 542 886 74 86 | 10:00-19:00
+3. Guzelyurt: Orange Mall AVM | Tel: +90 548 836 66 90 | 10:00-21:00
+4. Alsancak/Girne: Yayla No:37 | Tel: +90 542 886 45 45 | 10:00-19:00
+5. Cataloy: Besparmaklar Cd No:92 | Tel: +90 548 837 66 94 | 10:00-19:00
+6. Magusa: sharafstore.com/en/store-locator
 
-YOUR RESPONSE RULES:
-1. Respond with ONLY a raw JSON object - no markdown, no backticks, no code blocks
-2. Start your response with { and end with }
-3. Use EXACTLY these short field names: n, p, u, i, b
-4. Only use products from CATALOG MATCHES
+DIL KURALI:
+- Musteri Turkce yazarsa TURKCE cevap ver
+- Musteri Ingilizce yazarsa INGILIZCE cevap ver
+- Varsayilan dil TURKCE
 
-EXACT JSON FORMAT:
-{"reply":"Your helpful reply here","products":[{"n":"product name","p":"price TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"brand"}],"chips":["chip1","chip2","chip3"]}
+HEDIYE ONERISI: Musteri hediye sorarsa butce ve kisi icin en uygun urunu oner.
+FIYAT ARALIGIM: Musteri fiyat araligim sorarsa katalogdan o aralikta urunler goster.
+RESIM: Musteri resim gonderirse urunu tani ve katalogdan benzerlerini bul.
+VERGI IADESI: 20.000 TL uzeri urunlerde yabanci uyruklular icin Vergi Iadesi'nden bahset.
 
-If no products: {"reply":"Your reply","products":[],"chips":["chip1","chip2","chip3"]}`,
+YANIT FORMATI - KESINLIKLE UYMALI:
+- SADECE ham JSON don, markdown yok, backtick yok
+- { ile basla, } ile bitir
+- Alan adlari: n, p, u, i, b
+- Sadece KATALOG'daki urunleri kullan
+
+{"reply":"yanitin","products":[{"n":"urun adi","p":"fiyat TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"marka"}],"chips":["secenek1","secenek2","secenek3"]}`,
         messages: body.messages,
       }),
     });
 
-    const data = await response.json();
-
-    let raw = '';
-    if (data && data.content) {
-      data.content.forEach(b => { if (b.type === 'text') raw += b.text; });
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: `API error ${res.status}` }), { status: 502, headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
+    const data = await res.json();
+    let raw = '';
+    if (data?.content) data.content.forEach(b => { if (b.type === 'text') raw += b.text; });
     raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    const start = raw.indexOf('{');
-    const end = raw.lastIndexOf('}');
-    if (start !== -1 && end !== -1) raw = raw.substring(start, end + 1);
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s !== -1 && e !== -1) raw = raw.substring(s, e + 1);
 
-    const cleanData = { ...data, content: [{ type: 'text', text: raw }] };
-
-    return new Response(JSON.stringify(cleanData), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+    return new Response(JSON.stringify({ content: [{ type: 'text', text: raw }] }), {
+      headers: { ...cors, 'Content-Type': 'application/json' }
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } });
   }
 }
