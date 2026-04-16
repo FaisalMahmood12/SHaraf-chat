@@ -301,7 +301,22 @@ function send(){
       if(parsed.products&&parsed.products.length)h+=cards(parsed.products);
       msg(h,'ai');
       chips(parsed.chips);
-    }catch(e){msg(raw||'Bir hata olustu.','ai');}
+    }catch(e){
+      // Try harder to extract JSON
+      try{
+        var s2=raw.indexOf('{'),e2=raw.lastIndexOf('}');
+        if(s2>-1&&e2>-1){
+          var p2=JSON.parse(raw.substring(s2,e2+1));
+          history.push({role:'assistant',content:raw});
+          var h2=p2.reply||'';
+          if(p2.products&&p2.products.length)h2+=cards(p2.products);
+          msg(h2,'ai');
+          chips(p2.chips);
+        } else {
+          msg('Bir hata olustu, lutfen tekrar deneyin.','ai');
+        }
+      }catch(e2){msg('Bir hata olustu, lutfen tekrar deneyin.','ai');}
+    }
     busy=false;
   })
   .catch(function(){
