@@ -17,116 +17,102 @@ export default async function handler(req) {
     const body = await req.json();
     const messages = body.messages;
     const lastMessage = messages[messages.length - 1];
-
-    // Check if last message contains an image
-    const hasImage = Array.isArray(lastMessage?.content) && 
+    const hasImage = Array.isArray(lastMessage?.content) &&
       lastMessage.content.some(c => c.type === 'image');
 
     let finalMessages = messages;
 
     if (hasImage) {
-      // STEP 1: Analyze image to identify product
+      // Step 1: Identify product in image
       const analyzeRes = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-        },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 200,
-          system: 'You are a product recognition expert. Analyze the image and identify: 1) Brand name, 2) Product type/category, 3) Model name if visible. Reply in this exact format: BRAND:xxx|TYPE:xxx|MODEL:xxx|KEYWORDS:keyword1,keyword2,keyword3',
+          max_tokens: 150,
+          system: 'Identify the product in the image. Reply ONLY in this format: BRAND:xxx|TYPE:xxx|KEYWORDS:word1,word2,word3',
           messages: [{ role: 'user', content: lastMessage.content }],
         }),
       });
 
       const analyzeData = await analyzeRes.json();
       let analysis = '';
-      if (analyzeData?.content) {
-        analyzeData.content.forEach(b => { if (b.type === 'text') analysis += b.text; });
-      }
+      if (analyzeData?.content) analyzeData.content.forEach(b => { if (b.type === 'text') analysis += b.text; });
 
-      // Extract keywords from analysis
+      const brandMatch = analysis.match(/BRAND:([^|]+)/i);
       const keywordsMatch = analysis.match(/KEYWORDS:([^\n|]+)/i);
-      const brandMatch = analysis.match(/BRAND:([^\n|]+)/i);
-      const typeMatch = analysis.match(/TYPE:([^\n|]+)/i);
+      const typeMatch = analysis.match(/TYPE:([^|]+)/i);
 
       const brand = brandMatch ? brandMatch[1].trim().toLowerCase() : '';
       const type = typeMatch ? typeMatch[1].trim().toLowerCase() : '';
-      const keywords = keywordsMatch ? keywordsMatch[1].trim() : '';
+      const keywords = keywordsMatch ? keywordsMatch[1].trim().toLowerCase() : '';
 
-      // STEP 2: Search catalog with identified keywords
-      const catalogData = body.catalog || [];
-      
-      // Filter catalog by brand and type
-      const searchTerms = [brand, type, ...keywords.split(',').map(k => k.trim())].filter(Boolean);
-      
-      const matchedProducts = catalogData.filter(p => {
-        const productText = (p.n + ' ' + (p.b || '') + ' ' + (p.c || '')).toLowerCase();
-        return searchTerms.some(term => term.length > 2 && productText.includes(term));
+      const catalog = body.catalog || [];
+      const searchTerms = [brand, type, ...keywords.split(',').map(k => k.trim())].filter(t => t.length > 2);
+
+      const matched = catalog.filter(p => {
+        const txt = (p.n + ' ' + (p.b || '') + ' ' + (p.c || '')).toLowerCase();
+        return searchTerms.some(t => txt.includes(t));
       }).slice(0, 8);
 
-      const catalogContext = matchedProducts.length > 0
-        ? 'KATALOG ESLESMELER:\n' + matchedProducts.map(p => p.n + '|' + p.p + '|' + (p.b || '') + '|URL:' + p.u + '|IMG:' + (p.i || '')).join('\n')
-        : 'Bu marka/urun katalogda bulunamadi. Alternatif urun onerisi yapabilirsin.';
+      const catalogCtx = matched.length > 0
+        ? 'KATALOG:\n' + matched.map(p => p.n + '|' + p.p + '|' + (p.b || '') + '|URL:' + p.u + '|IMG:' + (p.i || '')).join('\n')
+        : 'Exact match not found. Suggest most similar products from catalog and encourage purchase.';
 
-      // Build new message with analysis + catalog
-      const userText = Array.isArray(lastMessage.content) 
+      const userText = Array.isArray(lastMessage.content)
         ? (lastMessage.content.find(c => c.type === 'text')?.text || '')
         : lastMessage.content;
 
-      const enhancedContent = [
-        ...lastMessage.content.filter(c => c.type === 'image'),
-        { 
-          type: 'text', 
-          text: `Resim analizi: ${analysis}\n\nMusteri notu: ${userText || 'Yok'}\n\n${catalogContext}\n\nBu bilgilere dayanarak musteri icin en uygun urunleri oner.`
-        }
-      ];
-
       finalMessages = [
         ...messages.slice(0, -1),
-        { role: 'user', content: enhancedContent }
+        {
+          role: 'user', content: [
+            ...lastMessage.content.filter(c => c.type === 'image'),
+            { type: 'text', text: 'Image analysis: ' + analysis + '\nCustomer note: ' + (userText || 'none') + '\n\n' + catalogCtx }
+          ]
+        }
       ];
     }
 
-    // Final response
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1000,
-        system: `Sen SHARAF AI'sin - Sharaf Electro KKTC'nin resmi alisveris asistanisin (sharafstore.com).
+        system: `Sen SHARAF AI'sin - Sharaf Electro KKTC resmi alisveris asistanisin (sharafstore.com).
 
 MAGAZA: sharafstore.com | WhatsApp: +90 533 850 8819 | Tel: +90 533 850 8820
-KKTC'de 6 magaza | 150+ marka | 3000+ urun | 10.000 TL uzeri ucretsiz kargo | 2 yil garanti
+KKTC'de 6 magaza | 10.000 TL uzeri ucretsiz kargo | 2 yil garanti
 
-DIL KURALI:
-- Musteri Turkce yazarsa TURKCE cevap ver
-- Musteri Ingilizce yazarsa INGILIZCE cevap ver
-- Varsayilan dil TURKCE
+DIL KURALI - COK ONEMLI:
+- Musteri hangi dilde yazarsa O DILDE cevap ver
+- Ingilizce mesaj → Ingilizce cevap
+- Turkce mesaj → Turkce cevap
+- Karisik mesaj → son mesajin diline gore cevap ver
 
-SATIS AMACI: Her zaman musteri satin alma yapmayi hedefle. Urun bulunamasa bile alternatif oner.
-VERGI IADESI: 20.000 TL uzeri urunlerde yabanci uyruklular icin Vergi Iadesi'nden bahset.
+MARKA ONCELIGI:
+- TV aramasinda musterinin belirli bir markasi yoksa → TCL markasini one cik
+- Supurge/vacuum aramasinda belirli marka yoksa → Bissell markasini one cik
+- Musteri belirli marka isterse → o markayi goster
 
-YANIT FORMATI - KESINLIKLE UYMALI:
-- SADECE ham JSON don, markdown yok, backtick yok
+KATALOG KULLANIMI:
+- Gonderilen KATALOG verisi seniN GERCEK STOKUNDUR - buna guvene
+- "Yok" deme - katalogda arama yap, mutlaka bir seyin vardir
+- Tam eslesme yoksa BENZER urunu oner - satis amaclisin
+- 20.000 TL uzeri urunlerde Vergi Iadesi belirt
+
+YANIT FORMATI - KESINLIKLE:
+- SADECE ham JSON, markdown yok, backtick yok
 - { ile basla } ile bitir
 - Alan adlari: n, p, u, i, b
 
-{"reply":"yanitin","products":[{"n":"urun adi","p":"fiyat TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"marka"}],"chips":["secenek1","secenek2","secenek3"]}`,
+{"reply":"yanitin","products":[{"n":"urun","p":"fiyat TL","u":"https://sharafstore.com/shop/...","i":"https://sharafstore.com/web/image/product.template/.../image_512","b":"marka"}],"chips":["1","2","3"]}`,
         messages: finalMessages,
       }),
     });
 
-    if (!res.ok) {
-      return new Response(JSON.stringify({ error: `API error ${res.status}` }), { status: 502, headers: { ...cors, 'Content-Type': 'application/json' } });
-    }
+    if (!res.ok) return new Response(JSON.stringify({ error: `API error ${res.status}` }), { status: 502, headers: { ...cors, 'Content-Type': 'application/json' } });
 
     const data = await res.json();
     let raw = '';
