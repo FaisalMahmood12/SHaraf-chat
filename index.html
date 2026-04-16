@@ -13,10 +13,10 @@
   var SUPA_URL = 'https://atjdjcimxpfmyxtnoskj.supabase.co';
   var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0amRqY2lteHBmbXl4dG5vc2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjEwMzEsImV4cCI6MjA5MTg5NzAzMX0.e2nhiBzq5h7VtOFQ3VLKVfJPJyq6ajkrioYCAsJ9isY';
 
-  // Generate a unique session ID per visit
   var sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  var sessionStart = new Date().toISOString();
+  var messageCount = 0;
 
-  // Collect passive device info
   var deviceInfo = {
     userAgent: navigator.userAgent,
     language: navigator.language || 'unknown',
@@ -27,13 +27,18 @@
     referrer: document.referrer || 'direct'
   };
 
-  // Log a single chat turn to Supabase
-  function logChat(userMsg, botReply, productsShown) {
+  // Upsert — creates session row on first message, updates on each new message
+  function logChat(userMsg, botReply, productsShown, fullHistory) {
+    messageCount++;
     var payload = {
       session_id: sessionId,
-      user_message: userMsg || '',
-      bot_reply: botReply || '',
+      session_start: sessionStart,
+      message_count: messageCount,
+      last_message_at: new Date().toISOString(),
+      last_user_message: userMsg || '',
+      last_bot_reply: botReply || '',
       products_shown: productsShown || [],
+      full_conversation: fullHistory || [],
       device: deviceInfo.device,
       language: deviceInfo.language,
       user_agent: deviceInfo.userAgent,
@@ -42,21 +47,21 @@
       referrer: deviceInfo.referrer
     };
 
-    fetch(SUPA_URL + '/rest/v1/chat_logs', {
+    fetch(SUPA_URL + '/rest/v1/chat_sessions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPA_KEY,
         'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal'
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
       },
       body: JSON.stringify(payload)
-    }).catch(function(){/* silent fail - never interrupts chatbot */});
+    }).catch(function(){});
   }
 
-  // Expose globally so the chatbot can call it
   window._shrfLog = logChat;
   window._shrfSession = sessionId;
+  window._shrfHistory = []; // running conversation log
 })();
 </script>
 <!-- ==================== END SUPABASE LOGGER ==================== -->
@@ -159,17 +164,11 @@ function storeCards(){
   var h='<div style="font-size:12px;font-weight:600;color:#1a3a5c;margin-bottom:6px;">Magazalarimiz:</div>';
   STORES.forEach(function(s){
     h+='<a class="shrf-store" href="'+s.map+'" target="_blank">';
-    h+='<div class="shrf-store-info">';
-    h+='<div class="shrf-store-name">'+s.name+'</div>';
+    h+='<div class="shrf-store-info"><div class="shrf-store-name">'+s.name+'</div>';
     if(s.tel)h+='<div class="shrf-store-detail">'+s.tel+' | '+s.hours+'</div>';
-    h+='</div>';
-    h+='<span class="shrf-store-map">Harita</span>';
-    h+='</a>';
+    h+='</div><span class="shrf-store-map">Harita</span></a>';
   });
-  h+='<a class="shrf-wa" href="'+WA+'" target="_blank">';
-  h+='<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
-  h+='WhatsApp ile Yaz';
-  h+='</a>';
+  h+='<a class="shrf-wa" href="'+WA+'" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp ile Yaz</a>';
   return h;
 }
 
@@ -222,8 +221,8 @@ function search(q){
   if(priceMatch){minP=parseInt(priceMatch[1].replace('.',''));maxP=parseInt(priceMatch[3].replace('.',''));}
   var budgetMatch=q.match(/(\d[\d.]*)\s*(tl)?\s*(butce|budget|max|alti|under|kadar)/i);
   if(budgetMatch)maxP=parseInt(budgetMatch[1].replace('.',''));
-  var isTVSearch=ql.indexOf('tv')>-1||ql.indexOf('television')>-1||ql.indexOf('televizyon')>-1||ql.indexOf('smart tv')>-1;
-  var isVacuumSearch=ql.indexOf('vacuum')>-1||ql.indexOf('supu')>-1||ql.indexOf('süpürgeler')>-1||ql.indexOf('cleaner')>-1||ql.indexOf('bissell')>-1;
+  var isTVSearch=ql.indexOf('tv')>-1||ql.indexOf('television')>-1||ql.indexOf('televizyon')>-1;
+  var isVacuumSearch=ql.indexOf('vacuum')>-1||ql.indexOf('supu')>-1||ql.indexOf('süpürgeler')>-1||ql.indexOf('bissell')>-1;
   var brandRequested=ql.match(/(samsung|lg|tcl|apple|sony|philips|bosch|tefal|bissell|dyson)/i);
   var scored=[];
   for(var i=0;i<CAT.length;i++){
@@ -269,6 +268,24 @@ setTimeout(function(){
   setTimeout(function(){b.style.display='none';b.style.opacity='1';},500);
 },30000);
 
+function logTurn(userText, botReply, shownProducts){
+  if(!window._shrfLog) return;
+  if(!window._shrfHistory) window._shrfHistory=[];
+  // Append this turn to running history
+  window._shrfHistory.push({
+    role:'customer',
+    text: userText||'[image]',
+    time: new Date().toISOString()
+  });
+  window._shrfHistory.push({
+    role:'bot',
+    text: botReply||'',
+    products: shownProducts||[],
+    time: new Date().toISOString()
+  });
+  window._shrfLog(userText, botReply, shownProducts, window._shrfHistory);
+}
+
 function send(){
   var inp=$('shrf-inp');
   var t=inp.value.trim();
@@ -291,23 +308,19 @@ function send(){
   $('shrf-chips').innerHTML='';
 
   if(t&&isStoreQuery(t)){
-    var storeReply=storeCards();
-    msg(storeReply,'ai');
-    // ---- LOG TO SUPABASE ----
-    if(window._shrfLog) window._shrfLog(t, 'Store cards shown', []);
+    var sr=storeCards();
+    msg(sr,'ai');
+    logTurn(t,'[Store locations shown]',[]);
     chips(['Telefon numarasi','WhatsApp','Urun sor']);
-    busy=false;
-    return;
+    busy=false;return;
   }
 
   if(t&&isWAQuery(t)){
     var waHtml='WhatsApp uzerinden bize ulasabilirsiniz:<br><a class="shrf-wa" href="'+WA+'" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp ile Yaz</a>';
     msg(waHtml,'ai');
-    // ---- LOG TO SUPABASE ----
-    if(window._shrfLog) window._shrfLog(t, 'WhatsApp redirect shown', []);
+    logTurn(t,'[WhatsApp redirect shown]',[]);
     chips(['Magazalarimiz','Urun sor','Teslimat bilgisi']);
-    busy=false;
-    return;
+    busy=false;return;
   }
 
   typing(true);
@@ -318,10 +331,7 @@ function send(){
 
   if(ib){
     var imgTxt='Resimde ne var? Marka, urun tipi ve modeli belirle. Katalogdan bul veya benzer oner. '+(t||'');
-    content=[
-      {type:'image',source:{type:'base64',media_type:it,data:ib}},
-      {type:'text',text:imgTxt}
-    ];
+    content=[{type:'image',source:{type:'base64',media_type:it,data:ib}},{type:'text',text:imgTxt}];
   } else {
     content=t+' '+ctx;
   }
@@ -345,13 +355,8 @@ function send(){
       var h=parsed.reply||'';
       if(parsed.products&&parsed.products.length)h+=cards(parsed.products);
       msg(h,'ai');
-
-      // ---- LOG TO SUPABASE ----
-      if(window._shrfLog){
-        var shownProducts=(parsed.products||[]).map(function(p){return {name:p.n,price:p.p,brand:p.b,url:p.u};});
-        window._shrfLog(t||'[image]', parsed.reply||'', shownProducts);
-      }
-
+      var sp=(parsed.products||[]).map(function(p){return{name:p.n,price:p.p,brand:p.b,url:p.u};});
+      logTurn(t||'[image]', parsed.reply||'', sp);
       chips(parsed.chips);
     }catch(e){
       try{
@@ -362,52 +367,26 @@ function send(){
           var h2=p2.reply||'';
           if(p2.products&&p2.products.length)h2+=cards(p2.products);
           msg(h2,'ai');
-          // ---- LOG TO SUPABASE ----
-          if(window._shrfLog){
-            var sp2=(p2.products||[]).map(function(p){return {name:p.n,price:p.p,brand:p.b,url:p.u};});
-            window._shrfLog(t||'[image]', p2.reply||'', sp2);
-          }
+          var sp2=(p2.products||[]).map(function(p){return{name:p.n,price:p.p,brand:p.b,url:p.u};});
+          logTurn(t||'[image]', p2.reply||'', sp2);
           chips(p2.chips);
-        } else {
-          msg('Bir hata olustu, lutfen tekrar deneyin.','ai');
-          if(window._shrfLog) window._shrfLog(t, '[ERROR: parse failed]', []);
-        }
-      }catch(e2){
-        msg('Bir hata olustu, lutfen tekrar deneyin.','ai');
-        if(window._shrfLog) window._shrfLog(t, '[ERROR]', []);
-      }
+        } else { msg('Bir hata olustu, lutfen tekrar deneyin.','ai'); }
+      }catch(e2){ msg('Bir hata olustu, lutfen tekrar deneyin.','ai'); }
     }
     busy=false;
   })
   .catch(function(){
     typing(false);
     msg('Baglanti hatasi. Lutfen tekrar deneyin.','ai');
-    if(window._shrfLog) window._shrfLog(t||'[image]', '[CONNECTION ERROR]', []);
     busy=false;
   });
 }
 
 window.shrfChip=function(el){
   var t=el.textContent;
-  if(t==='Magazalarimiz'){
-    msg(t,'u');
-    $('shrf-chips').innerHTML='';
-    msg(storeCards(),'ai');
-    if(window._shrfLog) window._shrfLog(t, 'Store cards shown', []);
-    chips(['Telefon numarasi','WhatsApp','Urun sor']);
-    return;
-  }
-  if(t==='WhatsApp'){
-    msg(t,'u');
-    $('shrf-chips').innerHTML='';
-    var wh='<a class="shrf-wa" href="'+WA+'" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp ile Yaz</a>';
-    msg(wh,'ai');
-    if(window._shrfLog) window._shrfLog(t, 'WhatsApp redirect shown', []);
-    chips(['Magazalarimiz','Urun sor']);
-    return;
-  }
-  $('shrf-inp').value=t;
-  send();
+  if(t==='Magazalarimiz'){msg(t,'u');$('shrf-chips').innerHTML='';msg(storeCards(),'ai');logTurn(t,'[Store locations shown]',[]);chips(['Telefon numarasi','WhatsApp','Urun sor']);return;}
+  if(t==='WhatsApp'){msg(t,'u');$('shrf-chips').innerHTML='';var wh='<a class="shrf-wa" href="'+WA+'" target="_blank">WhatsApp ile Yaz</a>';msg(wh,'ai');logTurn(t,'[WhatsApp redirect]',[]);chips(['Magazalarimiz','Urun sor']);return;}
+  $('shrf-inp').value=t;send();
 };
 
 $('shrf-snd').onclick=send;
@@ -421,12 +400,10 @@ fi.onchange=function(){
   var file=fi.files[0];if(!file)return;
   var r=new FileReader();
   r.onload=function(e){
-    imgB64=e.target.result.split(',')[1];
-    imgType=file.type||'image/jpeg';
+    imgB64=e.target.result.split(',')[1];imgType=file.type||'image/jpeg';
     var prev=$('shrf-img-preview');
     prev.innerHTML='<img src="'+e.target.result+'"/><span onclick="shrfClearImg()">Kaldir</span>';
-    prev.style.display='flex';
-    $('shrf-inp').placeholder='Bu resim hakkinda sorun...';
+    prev.style.display='flex';$('shrf-inp').placeholder='Bu resim hakkinda sorun...';
   };
   r.readAsDataURL(file);fi.value='';
 };
@@ -439,31 +416,19 @@ window.shrfClearImg=function(){
 
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(SR){
-  var recog=new SR();
-  recog.continuous=false;recog.interimResults=true;recog.maxAlternatives=3;
+  var recog=new SR();recog.continuous=false;recog.interimResults=true;recog.maxAlternatives=3;
   var listening=false;
-  $('shrf-mic').onclick=function(){
-    if(listening){recog.stop();return;}
-    recog.lang='tr-TR';
-    try{recog.start();}catch(e){}
-  };
+  $('shrf-mic').onclick=function(){if(listening){recog.stop();return;}recog.lang='tr-TR';try{recog.start();}catch(e){}};
   recog.onstart=function(){listening=true;$('shrf-mic').classList.add('on');$('shrf-inp').placeholder='Dinliyorum...';};
   recog.onresult=function(e){
     var interim='',final='';
-    for(var i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal){final+=e.results[i][0].transcript;}
-      else{interim+=e.results[i][0].transcript;}
-    }
+    for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal){final+=e.results[i][0].transcript;}else{interim+=e.results[i][0].transcript;}}
     if(interim)$('shrf-inp').value=interim;
     if(final){$('shrf-inp').value=final;setTimeout(send,500);}
   };
-  recog.onerror=function(e){
-    if(recog.lang==='tr-TR'&&e.error!=='aborted'){recog.lang='en-US';try{recog.start();}catch(err){}}
-  };
+  recog.onerror=function(e){if(recog.lang==='tr-TR'&&e.error!=='aborted'){recog.lang='en-US';try{recog.start();}catch(err){}}};
   recog.onend=function(){listening=false;$('shrf-mic').classList.remove('on');$('shrf-inp').placeholder='Urun, teslimat, magaza sor...';};
-} else {
-  $('shrf-mic').style.display='none';
-}
+} else {$('shrf-mic').style.display='none';}
 
 })();
 </script>
