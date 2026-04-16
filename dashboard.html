@@ -4,48 +4,40 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Sharaf AI — Analytics</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#f7f8fa;
-  --surface:#ffffff;
-  --surface2:#f0f2f5;
-  --border:#e5e8ed;
-  --border2:#d0d5dd;
-  --text:#0f1623;
-  --text2:#4a5568;
-  --text3:#8a94a6;
-  --accent:#1e56a0;
-  --accent-light:#eef4fc;
-  --accent2:#0ea5e9;
-  --success:#059669;
-  --success-bg:#ecfdf5;
-  --warning:#d97706;
-  --warning-bg:#fffbeb;
-  --danger:#dc2626;
-  --danger-bg:#fef2f2;
+  --bg:#f7f8fa;--surface:#fff;--surface2:#f0f2f5;
+  --border:#e5e8ed;--border2:#d0d5dd;
+  --text:#0f1623;--text2:#4a5568;--text3:#8a94a6;
+  --accent:#1e56a0;--accent-light:#eef4fc;
+  --success:#059669;--success-bg:#ecfdf5;
+  --warning:#d97706;--warning-bg:#fffbeb;
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px}
+
+/* LOGIN */
 #login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
-.login-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:360px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.login-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:360px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.06)}
 .login-mark{width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
-.login-mark svg{width:24px;height:24px;fill:white}
-.login-wrap h1{font-size:20px;font-weight:600;color:var(--text);margin-bottom:6px}
+.login-mark svg{width:24px;height:24px}
+.login-wrap h1{font-size:20px;font-weight:600;margin-bottom:6px}
 .login-wrap p{font-size:13px;color:var(--text3);margin-bottom:32px}
 .login-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);text-align:center;letter-spacing:4px;outline:none;margin-bottom:14px;transition:border-color .15s}
 .login-input:focus{border-color:var(--accent);background:white}
-.login-btn{width:100%;background:var(--accent);border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:white;cursor:pointer;transition:background .15s}
+.login-btn{width:100%;background:var(--accent);border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:white;cursor:pointer}
 .login-btn:hover{background:#1a4a8a}
-.login-err{color:var(--danger);font-size:12px;margin-top:12px;display:none}
+.login-err{color:#dc2626;font-size:12px;margin-top:12px;display:none}
+
+/* DASHBOARD */
 #dashboard{display:none}
-/* TOP NAV */
 .nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .nav-left{display:flex;align-items:center;gap:14px}
 .nav-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.nav-mark svg{width:16px;height:16px;fill:white}
-.nav-title{font-size:15px;font-weight:600;color:var(--text)}
-.nav-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+.nav-mark svg{width:16px;height:16px}
+.nav-title{font-size:15px;font-weight:600}
+.nav-sep{width:1px;height:20px;background:var(--border)}
 .nav-sub{font-size:12px;color:var(--text3)}
 .nav-right{display:flex;align-items:center;gap:10px}
 .pill-live{display:flex;align-items:center;gap:6px;background:var(--success-bg);border:1px solid #a7f3d0;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--success)}
@@ -53,104 +45,118 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .btn-sm{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
 .btn-sm:hover{border-color:var(--accent);color:var(--accent)}
-.btn-export{background:var(--accent);border:none;border-radius:8px;padding:7px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:white;cursor:pointer;transition:background .15s}
-.btn-export:hover{background:#1a4a8a}
+.btn-primary{background:var(--accent);border:none;border-radius:8px;padding:7px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:white;cursor:pointer}
+.btn-primary:hover{background:#1a4a8a}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--surface2);border-radius:10px;padding:3px}
+.tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
 /* CONTENT */
 .content{padding:28px 32px;max-width:1280px;margin:0 auto}
-/* STAT CARDS */
+
+/* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px}
 @media(max-width:1100px){.stats-row{grid-template-columns:repeat(3,1fr)}}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;transition:box-shadow .15s}
-.stat:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:14px;padding:20px}
 .stat-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
-.stat-num{font-size:28px;font-weight:600;color:var(--text);line-height:1}
+.stat-num{font-size:28px;font-weight:600;line-height:1}
 .stat-sub{font-size:11px;color:var(--text3);margin-top:6px}
-.stat-accent{border-top:3px solid var(--accent)}
-/* INSIGHT BANNER */
+
+/* INSIGHT */
 .insight-banner{background:var(--accent);border-radius:14px;padding:22px 28px;margin-bottom:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.insight-item{display:flex;gap:12px;align-items:flex-start}
-.insight-icon-wrap{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
-.insight-text{font-size:12px;color:rgba(255,255,255,.8);line-height:1.6}
-.insight-text strong{color:white;font-weight:600}
-/* GRID */
+.ins-item{display:flex;gap:12px;align-items:flex-start}
+.ins-ico{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.ins-label{font-size:11px;color:rgba(255,255,255,.6);font-weight:500;margin-bottom:3px}
+.ins-text{font-size:12px;color:rgba(255,255,255,.85);line-height:1.6}
+.ins-text strong{color:white}
+
+/* GRIDS */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
 @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px}
-.card-head{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.card-head-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.card-head{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:18px}
+
 /* BARS */
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
-.bar-label{font-size:12px;color:var(--text2);width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:12px;color:var(--text2);width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
 .bar-bg{flex:1;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden}
-.bar-fg{height:100%;border-radius:4px;background:var(--accent);transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.bar-fg{height:100%;border-radius:4px;background:var(--accent);transition:width 1.2s ease}
 .bar-fg.orange{background:linear-gradient(90deg,#f59e0b,#f97316)}
 .bar-fg.green{background:linear-gradient(90deg,#10b981,#059669)}
-.bar-fg.purple{background:linear-gradient(90deg,#8b5cf6,#6366f1)}
-.bar-num{font-size:11px;color:var(--text3);width:24px;text-align:right;flex-shrink:0}
-/* DEVICE */
+.bar-num{font-size:11px;color:var(--text3);width:22px;text-align:right;flex-shrink:0}
+
+/* DEVICE RING */
 .device-row{display:flex;align-items:center;gap:20px}
 .ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring-pct{font-size:20px;font-weight:600;color:var(--text)}
+.ring-pct{font-size:20px;font-weight:600}
 .ring-lab{font-size:10px;color:var(--text3);margin-top:2px}
-.legend-list{flex:1}
-.legend-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--text2)}
+.leg-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--text2)}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
 /* HEATMAP */
-.hmap-grid{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-bottom:4px}
-.hmap-cell{aspect-ratio:1;border-radius:3px;background:var(--surface2);cursor:default;transition:opacity .15s}
-.hmap-cell:hover{opacity:.7}
-.hmap-labels{display:grid;grid-template-columns:repeat(24,1fr);gap:3px}
-.hmap-lab{font-size:9px;color:var(--text3);text-align:center}
-/* CHAT FEED */
-.feed{max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
-.feed::-webkit-scrollbar{width:4px}
-.feed::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.feed-item{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .15s}
-.feed-item:hover{border-color:var(--accent)}
-.feed-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.feed-id{font-size:10px;color:var(--text3);font-family:'Inter',monospace}
-.feed-time{font-size:10px;color:var(--text3)}
-.feed-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
-.bdg-blue{background:#eff6ff;color:#1d4ed8}
-.bdg-orange{background:#fff7ed;color:#c2410c}
-.bdg-green{background:#f0fdf4;color:#15803d}
-.bdg-purple{background:#f5f3ff;color:#6d28d9}
-.feed-q{font-size:13px;color:var(--text);margin-bottom:5px}
-.feed-q span{color:var(--accent);font-weight:500}
-.feed-a{font-size:11px;color:var(--text3);line-height:1.5}
-.feed-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.product-pill{font-size:10px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text2)}
-/* KEYWORDS */
-.kw-cloud{display:flex;flex-wrap:wrap;gap:7px}
-.kw-tag{font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 13px;color:var(--text2);cursor:default;transition:all .15s}
-.kw-tag:hover{border-color:var(--accent);color:var(--accent)}
-.kw-hot{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
-.kw-warm{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.hmap{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-bottom:6px}
+.hmap-cell{aspect-ratio:1;border-radius:3px;background:var(--surface2)}
+.hmap-labs{display:flex;justify-content:space-between;margin-top:2px}
+.hmap-lab{font-size:10px;color:var(--text3)}
+
 /* GEO */
 .geo-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
 .geo-row:last-child{border-bottom:none}
 .geo-pin{width:28px;height:28px;background:var(--accent-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.geo-info{flex:1}
-.geo-name{font-size:13px;font-weight:500;color:var(--text)}
+.geo-name{font-size:13px;font-weight:500}
 .geo-tz{font-size:10px;color:var(--text3)}
-.geo-count{font-size:12px;font-weight:500;color:var(--accent);background:var(--accent-light);border-radius:20px;padding:2px 10px}
-/* SOURCES */
-.source-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.source-row:last-child{border-bottom:none}
-.source-icon{width:26px;height:26px;background:var(--surface2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.source-name{flex:1;font-size:12px;color:var(--text2);white-re:nowrap;overflow:hidden;text-overflow:ellipsis}
-.source-pct{font-size:11px;color:var(--text3)}
-/* SECTION LABEL */
+.geo-count{font-size:12px;font-weight:500;color:var(--accent);background:var(--accent-light);border-radius:20px;padding:2px 10px;margin-left:auto;white-space:nowrap}
+
+/* SESSIONS LIST */
 .section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:28px 0 14px;display:flex;align-items:center;gap:10px}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.sessions-list{display:flex;flex-direction:column;gap:12px}
+.session-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:box-shadow .15s}
+.session-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.session-head{padding:16px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.session-head:hover{background:var(--surface2)}
+.session-avatar{width:36px;height:36px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:600;color:var(--accent)}
+.session-info{flex:1}
+.session-id{font-size:12px;font-weight:500;color:var(--text)}
+.session-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.session-badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
+.bdg-blue{background:#eff6ff;color:#1d4ed8}
+.bdg-orange{background:#fff7ed;color:#c2410c}
+.bdg-green{background:#f0fdf4;color:#15803d}
+.bdg-purple{background:#f5f3ff;color:#6d28d9}
+.bdg-gray{background:var(--surface2);color:var(--text2)}
+.session-expand{font-size:12px;color:var(--text3);flex-shrink:0;transition:transform .2s}
+.session-expand.open{transform:rotate(180deg)}
+.session-count{font-size:11px;background:var(--accent-light);color:var(--accent);border-radius:20px;padding:3px 10px;font-weight:600;flex-shrink:0}
+
+/* CONVERSATION THREAD */
+.conv-thread{padding:0 20px 20px;border-top:1px solid var(--border);display:none}
+.conv-thread.open{display:block}
+.conv-turn{margin-top:16px}
+.conv-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.conv-label.customer{color:#1d4ed8}
+.conv-label.bot{color:var(--success)}
+.conv-bubble{background:var(--surface2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text);line-height:1.6}
+.conv-bubble.customer{background:#eff6ff;border-left:3px solid #3b82f6}
+.conv-bubble.bot{background:#f0fdf4;border-left:3px solid #10b981}
+.conv-products{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.conv-prod{font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text2)}
+.conv-time{font-size:10px;color:var(--text3);margin-top:4px}
+
 /* LOADING/EMPTY */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px}
 .spin{width:32px;height:32px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{padding:40px;text-align:center;color:var(--text3);font-size:13px}
+.kw-cloud{display:flex;flex-wrap:wrap;gap:7px}
+.kw-tag{font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 13px;color:var(--text2)}
+.kw-hot{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.kw-warm{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
 </style>
 </head>
 <body>
@@ -158,7 +164,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div id="login-screen">
   <div class="login-wrap">
     <div class="login-mark">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
     <h1>Analytics Dashboard</h1>
     <p>Sharaf AI · KKTC Marketing Command</p>
@@ -172,33 +178,37 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <nav class="nav">
     <div class="nav-left">
       <div class="nav-mark">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
       </div>
       <span class="nav-title">Sharaf AI Analytics</span>
       <div class="nav-sep"></div>
       <span class="nav-sub">sharafstore.com · KKTC</span>
     </div>
     <div class="nav-right">
+      <div id="tab-bar" class="tabs">
+        <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+        <button class="tab" onclick="switchTab('conversations',this)">Conversations</button>
+      </div>
       <div class="pill-live"><div class="live-dot"></div>Live</div>
       <button class="btn-sm" onclick="loadData()">↻ Refresh</button>
-      <button class="btn-export" onclick="exportCSV()">↓ Export CSV</button>
+      <button class="btn-primary" onclick="exportCSV()">↓ Export</button>
     </div>
   </nav>
   <div class="content" id="main-content">
-    <div class="loading"><div class="spin"></div><span style="color:var(--text3);font-size:13px">Loading data…</span></div>
+    <div class="loading"><div class="spin"></div><span style="color:var(--text3);font-size:13px">Loading…</span></div>
   </div>
 </div>
 
 <script>
-const SUPA = 'https://atjdjcimxpfmyxtnoskj.supabase.co';
-const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0amRqY2lteHBmbXl4dG5vc2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjEwMzEsImV4cCI6MjA5MTg5NzAzMX0.e2nhiBzq5h7VtOFQ3VLKVfJPJyq6ajkrioYCAsJ9isY';
-const PASS = 'sharaf2025';
-let allData = [];
+const SUPA='https://atjdjcimxpfmyxtnoskj.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0amRqY2lteHBmbXl4dG5vc2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjEwMzEsImV4cCI6MjA5MTg5NzAzMX0.e2nhiBzq5h7VtOFQ3VLKVfJPJyq6ajkrioYCAsJ9isY';
+const PASS='sharaf2025';
+let allData=[], currentTab='overview';
 
-document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPW(); });
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPW();});
 
 function checkPW(){
-  if(document.getElementById('pw-input').value === PASS){
+  if(document.getElementById('pw-input').value===PASS){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('dashboard').style.display='block';
     loadData();
@@ -209,234 +219,278 @@ function checkPW(){
   }
 }
 
+function switchTab(tab, el){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTab();
+}
+
 async function loadData(){
-  document.getElementById('main-content').innerHTML = '<div class="loading"><div class="spin"></div><span style="color:var(--text3);font-size:13px">Loading data…</span></div>';
-  try {
-    const r = await fetch(SUPA+'/rest/v1/chat_logs?select=*&order=created_at.desc&limit=1000',{
+  document.getElementById('main-content').innerHTML='<div class="loading"><div class="spin"></div><span style="color:var(--text3);font-size:13px">Loading…</span></div>';
+  try{
+    // Try chat_sessions table first (new), fall back to chat_logs (old)
+    let r = await fetch(SUPA+'/rest/v1/chat_sessions?select=*&order=last_message_at.desc&limit=500',{
       headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
     });
-    allData = await r.json();
-    if(!Array.isArray(allData)) allData = [];
-    render(allData);
+    let d = await r.json();
+    if(Array.isArray(d) && d.length > 0){
+      allData = d;
+    } else {
+      // fallback to chat_logs
+      r = await fetch(SUPA+'/rest/v1/chat_logs?select=*&order=created_at.desc&limit=500',{
+        headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
+      });
+      d = await r.json();
+      allData = Array.isArray(d)?d:[];
+    }
+    renderTab();
   } catch(e){
     document.getElementById('main-content').innerHTML='<div class="empty">Failed to load. Check connection.</div>';
   }
 }
 
-function render(data){
-  const real = data.filter(d => d.user_message && d.user_message !== 'test message');
-  const total = real.length;
-  const sessions = new Set(real.map(d=>d.session_id)).size;
-  const today = real.filter(d=> new Date(d.created_at).toDateString()===new Date().toDateString()).length;
-  const mobile = real.filter(d=>d.device==='mobile').length;
-  const mPct = total ? Math.round(mobile/total*100) : 0;
-  const dPct = 100 - mPct;
+function renderTab(){
+  if(currentTab==='overview') renderOverview();
+  else renderConversations();
+}
 
-  const prodMap = {};
-  real.forEach(d=>{
-    if(d.products_shown && Array.isArray(d.products_shown)){
-      d.products_shown.forEach(p=>{ if(p.name) prodMap[p.name]=(prodMap[p.name]||0)+1; });
-    }
+function renderOverview(){
+  const data = allData.filter(d=>(d.last_user_message||d.user_message||'')!=='test message');
+  const total = data.length;
+  const sessions = new Set(data.map(d=>d.session_id)).size;
+  const today = data.filter(d=>{
+    const ts = d.last_message_at||d.created_at;
+    return ts && new Date(ts).toDateString()===new Date().toDateString();
+  }).length;
+  const mobile = data.filter(d=>d.device==='mobile').length;
+  const mPct = total?Math.round(mobile/total*100):0;
+
+  const prodMap={};
+  data.forEach(d=>{
+    const prods = d.products_shown;
+    if(Array.isArray(prods)) prods.forEach(p=>{if(p.name)prodMap[p.name]=(prodMap[p.name]||0)+1;});
   });
-  const topProds = obj2arr(prodMap,8);
+  const topProds=obj2arr(prodMap,8);
 
-  const stop = ['bir','bu','ve','ile','için','ne','var','mi','de','da','ben','sen','bana','bunu','kadar','gibi','daha','çok','nasıl','hangi','acaba','the','and','for','what','how','is','a','i','to','in','on'];
-  const kwMap = {};
-  real.forEach(d=>{
-    if(d.user_message){
-      d.user_message.toLowerCase().split(/\s+/).forEach(w=>{
-        w=w.replace(/[^a-züğışöçÜĞİŞÖÇ]/g,'');
-        if(w.length>2 && !stop.includes(w)) kwMap[w]=(kwMap[w]||0)+1;
-      });
-    }
+  const stop=['bir','bu','ve','ile','için','ne','var','mi','de','da','ben','sen','bana','bunu','kadar','gibi','daha','çok','nasıl','hangi','the','and','for','what','how','is','a','i','to','in','on'];
+  const kwMap={};
+  data.forEach(d=>{
+    const msg=d.last_user_message||d.user_message||'';
+    msg.toLowerCase().split(/\s+/).forEach(w=>{
+      w=w.replace(/[^a-züğışöçÜĞİŞÖÇ]/g,'');
+      if(w.length>2&&!stop.includes(w))kwMap[w]=(kwMap[w]||0)+1;
+    });
   });
-  const topKW = obj2arr(kwMap,24);
+  const topKW=obj2arr(kwMap,24);
 
-  const hours = new Array(24).fill(0);
-  real.forEach(d=>{ if(d.created_at) hours[new Date(d.created_at).getHours()]++; });
-  const maxH = Math.max(...hours,1);
-  const peakH = hours.indexOf(Math.max(...hours));
+  const hours=new Array(24).fill(0);
+  data.forEach(d=>{const ts=d.last_message_at||d.created_at;if(ts)hours[new Date(ts).getHours()]++;});
+  const maxH=Math.max(...hours,1);
+  const peakH=hours.indexOf(Math.max(...hours));
 
-  const langMap = {};
-  real.forEach(d=>{ if(d.language){ const l=d.language.split('-')[0]; langMap[l]=(langMap[l]||0)+1; }});
-  const topLangs = obj2arr(langMap,5);
+  const langMap={};
+  data.forEach(d=>{if(d.language){const l=d.language.split('-')[0];langMap[l]=(langMap[l]||0)+1;}});
+  const topLangs=obj2arr(langMap,5);
 
-  const tzMap = {};
-  real.forEach(d=>{ if(d.timezone) tzMap[d.timezone]=(tzMap[d.timezone]||0)+1; });
-  const topTZ = obj2arr(tzMap,6);
+  const tzMap={};
+  data.forEach(d=>{if(d.timezone)tzMap[d.timezone]=(tzMap[d.timezone]||0)+1;});
+  const topTZ=obj2arr(tzMap,6);
 
-  const refMap = {};
-  real.forEach(d=>{
-    const ref = d.referrer||'direct';
-    let label = 'Direct';
-    if(ref && ref!=='direct'){ try{ label=new URL(ref).hostname; }catch(e){ label=ref; } }
+  const refMap={};
+  data.forEach(d=>{
+    let ref=d.referrer||'direct',label='Direct';
+    if(ref&&ref!=='direct'){try{label=new URL(ref).hostname;}catch(e){label=ref;}}
     refMap[label]=(refMap[label]||0)+1;
   });
-  const topRefs = obj2arr(refMap,5);
+  const topRefs=obj2arr(refMap,5);
 
-  const topKW0 = topKW[0]?topKW[0][0]:'—';
-  const topProd0 = topProds[0]?topProds[0][0].substr(0,35):'—';
+  const topKW0=topKW[0]?topKW[0][0]:'—';
+  const topProd0=topProds[0]?topProds[0][0].substr(0,32):'—';
 
-  let h = '';
+  let h='';
+  h+='<div class="stats-row">';
+  h+=sc('Sessions',sessions,'unique visitors');
+  h+=sc('Messages',total,'total sent');
+  h+=sc('Today',today,'messages today');
+  h+=sc('Mobile',mPct+'%','of all visitors');
+  h+=sc('Products',topProds.length,'unique products asked');
+  h+=sc('Locations',topTZ.length,'timezones detected');
+  h+='</div>';
 
-  // STATS
-  h += '<div class="stats-row">';
-  h += sc('Total messages', total, 'all time');
-  h += sc('Unique sessions', sessions, 'visitors');
-  h += sc('Today', today, 'messages');
-  h += sc('Mobile', mPct+'%', 'of visitors');
-  h += sc('Products shown', topProds.length, 'unique products');
-  h += sc('Locations', topTZ.length, 'timezones');
-  h += '</div>';
+  h+='<div class="insight-banner">';
+  h+=ins('⏰','Best posting time','Peak traffic at <strong>'+peakH+':00</strong> — schedule your campaigns for this window');
+  h+=ins('🔍','Top keyword','Customers search <strong>"'+topKW0+'"</strong> most — use it in your ad copy');
+  h+=ins('📦','Most asked product','<strong>'+topProd0+'</strong> is your top product inquiry');
+  h+=ins('📱','Device split','<strong>'+mPct+'%</strong> mobile — optimise your mobile landing pages');
+  h+='</div>';
 
-  // INSIGHT BANNER
-  h += '<div class="insight-banner">';
-  h += ins('⏰', 'Best time to post', 'Peak engagement at <strong>'+peakH+':00</strong> — schedule campaigns for this hour');
-  h += ins('🔍', 'Top keyword', 'Customers search for <strong>"'+topKW0+'"</strong> most — use it in your ad copy');
-  h += ins('📦', 'Top product', '<strong>'+topProd0+'…</strong> is your most-asked product');
-  h += ins('📱', 'Mobile-first', '<strong>'+mPct+'%</strong> on mobile — optimise ads and pages for mobile');
-  h += '</div>';
+  h+='<div class="grid2">';
+  h+='<div class="card"><div class="card-head">Top products requested</div>';
+  if(topProds.length){const mx=topProds[0][1];topProds.forEach(([n,c])=>{h+='<div class="bar-row"><div class="bar-label" title="'+esc(n)+'">'+esc(n.substr(0,22))+(n.length>22?'…':'')+'</div><div class="bar-bg"><div class="bar-fg" style="width:'+pct(c,mx)+'%"></div></div><div class="bar-num">'+c+'</div></div>';});}
+  else h+='<div class="empty">No product data yet</div>';
+  h+='</div>';
 
-  h += '<div class="section-label">Performance breakdown</div>';
-  h += '<div class="grid2">';
-
-  // TOP PRODUCTS
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">📦</div>Top products requested</div>';
-  if(topProds.length){
-    const mx = topProds[0][1];
-    topProds.forEach(([n,c])=>{
-      h += '<div class="bar-row"><div class="bar-label" title="'+esc(n)+'">'+esc(n.substr(0,22))+(n.length>22?'…':'')+'</div><div class="bar-bg"><div class="bar-fg" style="width:'+pct(c,mx)+'%"></div></div><div class="bar-num">'+c+'</div></div>';
-    });
-  } else h += '<div class="empty">No product data yet</div>';
-  h += '</div>';
-
-  // TOP KEYWORDS
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">🔍</div>Search keywords</div>';
-  h += '<div class="kw-cloud">';
-  const mxKW = topKW[0]?topKW[0][1]:1;
+  h+='<div class="card"><div class="card-head">Search keywords</div><div class="kw-cloud">';
+  const mxKW=topKW[0]?topKW[0][1]:1;
   topKW.forEach(([w,c])=>{
-    const cls = c/mxKW>.6?'kw-hot':c/mxKW>.3?'kw-warm':'';
-    h += '<span class="kw-tag '+cls+'">'+esc(w)+' <span style="opacity:.5;font-size:10px">'+c+'</span></span>';
+    const cls=c/mxKW>.6?'kw-hot':c/mxKW>.3?'kw-warm':'';
+    h+='<span class="kw-tag '+cls+'">'+esc(w)+' <span style="opacity:.5;font-size:10px">'+c+'</span></span>';
   });
-  if(!topKW.length) h+='<div class="empty">No keyword data yet</div>';
-  h += '</div></div>';
-  h += '</div>';
+  if(!topKW.length)h+='<div class="empty">No keyword data yet</div>';
+  h+='</div></div></div>';
 
-  h += '<div class="grid3">';
+  h+='<div class="grid3">';
 
-  // DEVICE DONUT
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">📱</div>Device type</div>';
-  const circ = 2*Math.PI*42;
-  const mArc = (mPct/100)*circ;
-  h += '<div class="device-row">';
-  h += '<div class="ring-wrap"><svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="42" fill="none" stroke="#e5e8ed" stroke-width="14" transform="rotate(-90 55 55)"/>';
-  h += '<circle cx="55" cy="55" r="42" fill="none" stroke="'+( mPct>50?'#1e56a0':'#0ea5e9')+'" stroke-width="14" stroke-dasharray="'+mArc+' '+circ+'" stroke-linecap="round" transform="rotate(-90 55 55)"/></svg>';
-  h += '<div class="ring-center"><div class="ring-pct">'+mPct+'%</div><div class="ring-lab">Mobile</div></div></div>';
-  h += '<div class="legend-list">';
-  h += '<div class="legend-row"><div class="leg-dot" style="background:#1e56a0"></div>Mobile — '+mobile+'</div>';
-  h += '<div class="legend-row"><div class="leg-dot" style="background:#bfdbfe"></div>Desktop — '+(total-mobile)+'</div>';
-  h += '</div></div></div>';
+  // Device donut
+  const circ=2*Math.PI*42;const mArc=(mPct/100)*circ;
+  h+='<div class="card"><div class="card-head">Device split</div><div class="device-row">';
+  h+='<div class="ring-wrap"><svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="42" fill="none" stroke="#e5e8ed" stroke-width="14" transform="rotate(-90 55 55)"/><circle cx="55" cy="55" r="42" fill="none" stroke="#1e56a0" stroke-width="14" stroke-dasharray="'+mArc+' '+circ+'" stroke-linecap="round" transform="rotate(-90 55 55)"/></svg><div class="ring-center"><div class="ring-pct">'+mPct+'%</div><div class="ring-lab">Mobile</div></div></div>';
+  h+='<div><div class="leg-row"><div class="leg-dot" style="background:#1e56a0"></div>Mobile — '+mobile+'</div><div class="leg-row"><div class="leg-dot" style="background:#bfdbfe"></div>Desktop — '+(total-mobile)+'</div></div></div></div>';
 
-  // LANGUAGES
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">🌍</div>Languages</div>';
-  if(topLangs.length){
-    const mxL = topLangs[0][1];
-    const flags = {tr:'🇹🇷',en:'🇬🇧',ar:'🇸🇦',de:'🇩🇪',fr:'🇫🇷',ru:'🇷🇺',nl:'🇳🇱'};
-    topLangs.forEach(([l,c])=>{
-      const f = flags[l]||'🌐';
-      h += '<div class="bar-row"><div class="bar-label">'+f+' '+l.toUpperCase()+'</div><div class="bar-bg"><div class="bar-fg orange" style="width:'+pct(c,mxL)+'%"></div></div><div class="bar-num">'+c+'</div></div>';
-    });
-  } else h+='<div class="empty">No data yet</div>';
-  h += '</div>';
+  // Languages
+  h+='<div class="card"><div class="card-head">Languages</div>';
+  const flags={tr:'🇹🇷',en:'🇬🇧',ar:'🇸🇦',de:'🇩🇪',fr:'🇫🇷',ru:'🇷🇺'};
+  if(topLangs.length){const mxL=topLangs[0][1];topLangs.forEach(([l,c])=>{const f=flags[l]||'🌐';h+='<div class="bar-row"><div class="bar-label">'+f+' '+l.toUpperCase()+'</div><div class="bar-bg"><div class="bar-fg orange" style="width:'+pct(c,mxL)+'%"></div></div><div class="bar-num">'+c+'</div></div>';});}
+  else h+='<div class="empty">No data</div>';
+  h+='</div>';
 
-  // TRAFFIC SOURCES
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">🔗</div>Traffic sources</div>';
-  if(topRefs.length){
-    const mxR = topRefs[0][1];
-    topRefs.forEach(([r,c])=>{
-      h += '<div class="source-row"><div class="source-icon">🌐</div><div class="source-name">'+esc(r)+'</div><div class="bar-bg" style="width:70px;margin-right:8px"><div class="bar-fg green" style="width:'+pct(c,mxR)+'%"></div></div><div class="source-pct">'+c+'</div></div>';
-    });
-  } else h+='<div class="empty">No source data yet</div>';
-  h += '</div>';
-  h += '</div>';
+  // Traffic sources
+  h+='<div class="card"><div class="card-head">Traffic sources</div>';
+  if(topRefs.length){const mxR=topRefs[0][1];topRefs.forEach(([r,c])=>{h+='<div class="bar-row"><div class="bar-label">'+esc(r.substr(0,18))+'</div><div class="bar-bg"><div class="bar-fg green" style="width:'+pct(c,mxR)+'%"></div></div><div class="bar-num">'+c+'</div></div>';});}
+  else h+='<div class="empty">No data</div>';
+  h+='</div></div>';
 
-  // HEATMAP
-  h += '<div class="card" style="margin-bottom:16px"><div class="card-head"><div class="card-head-icon">⏰</div>Hourly activity</div>';
-  h += '<div class="hmap-grid">';
-  hours.forEach((c,i)=>{
-    const intensity = c/maxH;
-    const alpha = intensity===0 ? 0 : .12 + intensity*.88;
-    h += '<div class="hmap-cell" style="background:rgba(30,86,160,'+alpha.toFixed(2)+')" title="'+i+':00 — '+c+' messages"></div>';
-  });
-  h += '</div><div class="hmap-labels">';
-  for(let i=0;i<24;i++) h+='<div class="hmap-lab">'+(i%6===0?i:i===12?'':i===18?'':'' )+'</div>';
-  h += '</div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:10px;color:var(--text3)">12 AM</span><span style="font-size:10px;color:var(--text3)">6 AM</span><span style="font-size:10px;color:var(--text3)">12 PM</span><span style="font-size:10px;color:var(--text3)">6 PM</span><span style="font-size:10px;color:var(--text3)">11 PM</span></div>';
-  h += '</div>';
+  // Heatmap
+  h+='<div class="card" style="margin-bottom:16px"><div class="card-head">Hourly activity</div><div class="hmap">';
+  hours.forEach((c,i)=>{const a=c/maxH;const bg=c===0?'var(--surface2)':'rgba(30,86,160,'+(0.12+a*.88).toFixed(2)+')';h+='<div class="hmap-cell" style="background:'+bg+'" title="'+i+':00 — '+c+' messages"></div>';});
+  h+='</div><div class="hmap-labs"><span class="hmap-lab">12 AM</span><span class="hmap-lab">6 AM</span><span class="hmap-lab">12 PM</span><span class="hmap-lab">6 PM</span><span class="hmap-lab">11 PM</span></div></div>';
 
-  h += '<div class="section-label">Audience &amp; conversations</div>';
-  h += '<div class="grid2">';
+  // Locations
+  h+='<div class="card" style="margin-bottom:28px"><div class="card-head">Top locations</div>';
+  if(topTZ.length){topTZ.forEach(([tz,c])=>{const s=tz.split('/').pop().replace(/_/g,' ');h+='<div class="geo-row"><div class="geo-pin">📍</div><div><div class="geo-name">'+esc(s)+'</div><div class="geo-tz">'+esc(tz)+'</div></div><div class="geo-count">'+c+' msgs</div></div>';});}
+  else h+='<div class="empty">No location data yet</div>';
+  h+='</div>';
 
-  // LOCATIONS
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">📍</div>Top locations</div>';
-  if(topTZ.length){
-    topTZ.forEach(([tz,c])=>{
-      const short = tz.split('/').pop().replace(/_/g,' ');
-      h += '<div class="geo-row"><div class="geo-pin">📍</div><div class="geo-info"><div class="geo-name">'+esc(short)+'</div><div class="geo-tz">'+esc(tz)+'</div></div><div class="geo-count">'+c+' msgs</div></div>';
-    });
-  } else h+='<div class="empty">No location data yet</div>';
-  h += '</div>';
-
-  // CHAT FEED
-  h += '<div class="card"><div class="card-head"><div class="card-head-icon">💬</div>Recent conversations</div><div class="feed">';
-  const feedItems = real.slice(0,30);
-  if(feedItems.length){
-    feedItems.forEach(d=>{
-      const t = new Date(d.created_at).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-      const sid = (d.session_id||'').substr(0,14)+'…';
-      const prods = Array.isArray(d.products_shown)?d.products_shown.slice(0,3):[];
-      const lang = d.language?d.language.split('-')[0].toUpperCase():'';
-      const tz = d.timezone?d.timezone.split('/').pop().replace(/_/g,' '):'';
-      h += '<div class="feed-item">';
-      h += '<div class="feed-meta"><span class="feed-id">'+esc(sid)+'</span><span class="feed-time">'+t+'</span></div>';
-      h += '<div class="feed-badges">';
-      if(d.device) h+='<span class="badge bdg-blue">'+esc(d.device)+'</span>';
-      if(lang) h+='<span class="badge bdg-orange">'+esc(lang)+'</span>';
-      if(tz) h+='<span class="badge bdg-green">'+esc(tz)+'</span>';
-      h += '</div>';
-      h += '<div class="feed-q"><span>Customer:</span> '+esc(d.user_message)+'</div>';
-      if(d.bot_reply && d.bot_reply.length<300) h+='<div class="feed-a">'+esc(d.bot_reply.substr(0,140))+(d.bot_reply.length>140?'…':'')+'</div>';
-      if(prods.length){
-        h += '<div class="feed-pills">';
-        prods.forEach(p=>{ h+='<span class="product-pill">'+esc((p.name||'').substr(0,28))+'</span>'; });
-        h += '</div>';
-      }
-      h += '</div>';
-    });
-  } else h += '<div class="empty">No conversations yet — chat logs will appear here</div>';
-  h += '</div></div>';
-  h += '</div>';
-
-  document.getElementById('main-content').innerHTML = h;
+  document.getElementById('main-content').innerHTML=h;
 }
+
+function renderConversations(){
+  const sessions={};
+  allData.forEach(d=>{
+    if((d.last_user_message||d.user_message||'')==='test message') return;
+    const sid=d.session_id||'unknown';
+    if(!sessions[sid]){sessions[sid]=d;}
+    else{
+      // keep the most recent record per session
+      const existing=sessions[sid];
+      const existTs=existing.last_message_at||existing.created_at||'';
+      const newTs=d.last_message_at||d.created_at||'';
+      if(newTs>existTs) sessions[sid]=d;
+    }
+  });
+  const sessArr=Object.values(sessions).sort((a,b)=>{
+    const at=a.last_message_at||a.created_at||'';
+    const bt=b.last_message_at||b.created_at||'';
+    return bt.localeCompare(at);
+  });
+
+  let h='<div class="section-label">'+sessArr.length+' conversation sessions</div>';
+  h+='<div class="sessions-list">';
+
+  if(!sessArr.length){h+='<div class="empty">No conversations yet</div>';}
+  else {
+    sessArr.forEach((d,idx)=>{
+      const sid=d.session_id||'unknown';
+      const ts=d.last_message_at||d.created_at;
+      const time=ts?new Date(ts).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+      const tz=d.timezone?d.timezone.split('/').pop().replace(/_/g,' '):'';
+      const lang=d.language?d.language.split('-')[0].toUpperCase():'';
+      const msgCount=d.message_count||1;
+      const initials=(d.device==='mobile'?'📱':'🖥️');
+      const thread=d.full_conversation;
+      const hasThread=Array.isArray(thread)&&thread.length>0;
+
+      h+='<div class="session-card" id="sc-'+idx+'">';
+      h+='<div class="session-head" onclick="toggleThread('+idx+')">';
+      h+='<div class="session-avatar">'+initials+'</div>';
+      h+='<div class="session-info"><div class="session-id">'+esc(sid.substr(0,20))+'…</div>';
+      h+='<div class="session-meta">'+time+(tz?' · '+tz:'')+'</div></div>';
+      h+='<div class="session-badges">';
+      if(d.device)h+='<span class="badge bdg-blue">'+esc(d.device)+'</span>';
+      if(lang)h+='<span class="badge bdg-orange">'+esc(lang)+'</span>';
+      if(tz)h+='<span class="badge bdg-green">'+esc(tz)+'</span>';
+      h+='</div>';
+      h+='<span class="session-count">'+msgCount+' msg'+(msgCount!==1?'s':'')+'</span>';
+      h+='<span class="session-expand" id="exp-'+idx+'">▼</span>';
+      h+='</div>';
+
+      // THREAD
+      h+='<div class="conv-thread" id="thread-'+idx+'">';
+      if(hasThread){
+        thread.forEach(turn=>{
+          const isCustomer=turn.role==='customer';
+          const t=turn.time?new Date(turn.time).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'';
+          h+='<div class="conv-turn">';
+          h+='<div class="conv-label '+(isCustomer?'customer':'bot')+'">'+
+             (isCustomer?'● Customer':'● Sharaf AI')+
+             (t?'<span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.6">'+t+'</span>':'')+
+             '</div>';
+          h+='<div class="conv-bubble '+(isCustomer?'customer':'bot')+'">'+esc(turn.text||'')+'</div>';
+          if(!isCustomer&&turn.products&&turn.products.length){
+            h+='<div class="conv-products">';
+            turn.products.forEach(p=>{h+='<span class="conv-prod">'+esc((p.name||'').substr(0,30))+'</span>';});
+            h+='</div>';
+          }
+          h+='</div>';
+        });
+      } else {
+        // Fallback: show just the last message
+        const userMsg=d.last_user_message||d.user_message||'';
+        const botReply=d.last_bot_reply||d.bot_reply||'';
+        if(userMsg){
+          h+='<div class="conv-turn"><div class="conv-label customer">● Customer</div><div class="conv-bubble customer">'+esc(userMsg)+'</div></div>';
+        }
+        if(botReply){
+          h+='<div class="conv-turn"><div class="conv-label bot">● Sharaf AI</div><div class="conv-bubble bot">'+esc(botReply.substr(0,300))+(botReply.length>300?'…':'')+'</div></div>';
+        }
+        if(!userMsg&&!botReply) h+='<div class="empty" style="padding:20px">No message content saved</div>';
+      }
+      h+='</div>';
+      h+='</div>';
+    });
+  }
+  h+='</div>';
+  document.getElementById('main-content').innerHTML=h;
+}
+
+window.toggleThread=function(idx){
+  const thread=document.getElementById('thread-'+idx);
+  const exp=document.getElementById('exp-'+idx);
+  if(!thread) return;
+  const isOpen=thread.classList.contains('open');
+  thread.classList.toggle('open',!isOpen);
+  exp.classList.toggle('open',!isOpen);
+};
 
 function obj2arr(obj,n){return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);}
 function pct(v,mx){return mx?Math.round(v/mx*100):0;}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function sc(label,value,sub){return '<div class="stat stat-accent"><div class="stat-label">'+label+'</div><div class="stat-num">'+value+'</div><div class="stat-sub">'+sub+'</div></div>';}
-function ins(icon,label,text){return '<div class="insight-item"><div class="insight-icon-wrap">'+icon+'</div><div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:3px;font-weight:500">'+label+'</div><div class="insight-text">'+text+'</div></div></div>';}
+function sc(label,value,sub){return '<div class="stat"><div class="stat-label">'+label+'</div><div class="stat-num">'+value+'</div><div class="stat-sub">'+sub+'</div></div>';}
+function ins(icon,label,text){return '<div class="ins-item"><div class="ins-ico">'+icon+'</div><div><div class="ins-label">'+label+'</div><div class="ins-text">'+text+'</div></div></div>';}
 
 function exportCSV(){
-  if(!allData.length) return;
-  const cols=['id','session_id','created_at','user_message','bot_reply','device','language','timezone','referrer','screen'];
+  if(!allData.length)return;
+  const cols=['session_id','last_message_at','last_user_message','last_bot_reply','message_count','device','language','timezone','referrer'];
   let csv=cols.join(',')+'\n';
   allData.forEach(d=>{csv+=cols.map(c=>'"'+(d[c]||'').toString().replace(/"/g,'""')+'"').join(',')+'\n';});
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='sharaf-analytics-'+new Date().toISOString().split('T')[0]+'.csv';
+  a.download='sharaf-sessions-'+new Date().toISOString().split('T')[0]+'.csv';
   a.click();
 }
 
-setInterval(()=>{ if(document.getElementById('dashboard').style.display!=='none') loadData(); }, 60000);
+setInterval(()=>{if(document.getElementById('dashboard').style.display!=='none')loadData();},60000);
 </script>
 </body>
 </html>
