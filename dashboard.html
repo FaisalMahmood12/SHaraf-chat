@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SHARAF AI — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #080c14;
+  --surface: #0d1420;
+  --surface2: #111a2e;
+  --border: rgba(26,126,200,0.15);
+  --accent: #1A7EC8;
+  --accent2: #00d4ff;
+  --accent3: #ff6b35;
+  --text: #e8f4ff;
+  --muted: #4a7a9b;
+  --success: #00e676;
+  --warning: #ffab40;
+  --danger: #ff5252;
+  --gold: #ffd700;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* LOGIN SCREEN */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  background-image: radial-gradient(ellipse at 20% 50%, rgba(26,126,200,0.08) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.05) 0%, transparent 50%);
+}
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 48px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(26,126,200,0.1);
+  animation: loginFade 0.6s ease;
+}
+@keyframes loginFade { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.login-logo {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 24px;
+}
+.login-box h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.login-box p { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+.login-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 3px;
+  text-align: center;
+  outline: none;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.login-input:focus { border-color: var(--accent); }
+.login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.login-error { color: var(--danger); font-size: 12px; margin-top: 12px; display: none; }
+
+/* MAIN DASHBOARD */
+#dashboard { display: none; }
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(20px);
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-logo {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.topbar h1 { font-size: 16px; font-weight: 800; letter-spacing: 2px; }
+.topbar-sub { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,230,118,0.1);
+  border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px; color: var(--success); font-weight: 600;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+.refresh-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 16px;
+  color: var(--muted); font-size: 12px; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 600;
+  transition: all 0.2s;
+}
+.refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.stat-card:hover::before { opacity: 1; }
+.stat-icon { font-size: 24px; margin-bottom: 12px; }
+.stat-value { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.stat-change { font-size: 11px; margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+.stat-change.up { color: var(--success); }
+.stat-change.down { color: var(--danger); }
+
+/* GRID LAYOUT */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+@media(max-width:1024px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+.card-title {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title span { font-size: 16px; }
+
+/* CHARTS */
+.bar-item {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.bar-label { font-size: 12px; color: var(--text); min-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+.bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-fill.orange { background: linear-gradient(90deg, var(--accent3), var(--gold)); }
+.bar-fill.green { background: linear-gradient(90deg, #00b09b, var(--success)); }
+.bar-count { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); min-width: 30px; text-align: right; }
+
+/* DEVICE DONUT */
+.donut-wrap { display: flex; align-items: center; gap: 24px; }
+.donut-chart { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+.donut-chart svg { transform: rotate(-90deg); }
+.donut-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.donut-center .big { font-size: 22px; font-weight: 800; }
+.donut-center .small { font-size: 10px; color: var(--muted); }
+.donut-legend { flex: 1; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* HOURLY HEATMAP */
+.heatmap { display: grid; grid-template-columns: repeat(24,1fr); gap: 3px; }
+.heat-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--surface2);
+  transition: background 0.3s;
+  cursor: default;
+  position: relative;
+}
+.heat-cell:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px;
+  font-size: 10px; white-space: nowrap; z-index: 10;
+  font-family: 'JetBrains Mono', monospace;
+}
+.heat-hours { display: grid; grid-template-columns: repeat(24,1fr); gap: 3px; margin-top: 4px; }
+.heat-hour { font-size: 8px; color: var(--muted); text-align: center; font-family: 'JetBrains Mono', monospace; }
+
+/* GEO TABLE */
+.geo-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.geo-item:last-child { border-bottom: none; }
+.geo-flag { font-size: 20px; width: 28px; text-align: center; }
+.geo-info { flex: 1; }
+.geo-name { font-size: 13px; font-weight: 600; }
+.geo-ip { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.geo-count {
+  font-size: 12px; font-family: 'JetBrains Mono', monospace;
+  background: var(--surface2); border-radius: 20px;
+  padding: 2px 10px; color: var(--accent2);
+}
+
+/* CHAT FEED */
+.chat-feed { max-height: 480px; overflow-y: auto; }
+.chat-feed::-webkit-scrollbar { width: 4px; }
+.chat-feed::-webkit-scrollbar-track { background: transparent; }
+.chat-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.chat-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.chat-item:hover { border-color: var(--accent); background: rgba(26,126,200,0.03); }
+.chat-item-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.chat-session { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+.chat-time { font-size: 10px; color: var(--muted); }
+.chat-badges { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 20px;
+  font-weight: 600; font-family: 'JetBrains Mono', monospace;
+}
+.badge-device { background: rgba(26,126,200,0.15); color: var(--accent2); }
+.badge-lang { background: rgba(255,107,53,0.15); color: var(--accent3); }
+.badge-city { background: rgba(0,230,118,0.1); color: var(--success); }
+.chat-q { font-size: 13px; color: var(--text); margin-bottom: 6px; }
+.chat-q strong { color: var(--accent2); }
+.chat-a { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.chat-products { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.product-pill {
+  font-size: 10px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 3px 10px; color: var(--accent);
+}
+
+/* KEYWORDS */
+.keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.keyword-tag {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; font-weight: 600;
+  transition: all 0.2s;
+}
+.keyword-tag:hover { border-color: var(--accent); color: var(--accent); }
+.keyword-tag.hot { border-color: rgba(255,107,53,0.4); color: var(--accent3); background: rgba(255,107,53,0.08); }
+.keyword-tag.warm { border-color: rgba(26,126,200,0.4); color: var(--accent2); }
+
+/* LOADING */
+.loading {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px; flex-direction: column; gap: 16px;
+}
+.spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--surface2);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 40px; color: var(--muted); }
+.empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty p { font-size: 13px; }
+
+/* REMARKETING SECTION */
+.remarketing-card {
+  background: linear-gradient(135deg, rgba(26,126,200,0.1), rgba(0,212,255,0.05));
+  border: 1px solid rgba(26,126,200,0.3);
+  border-radius: 16px; padding: 24px;
+  margin-bottom: 20px;
+}
+.remarketing-title {
+  font-size: 14px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 16px;
+  color: var(--accent2);
+}
+.insight-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid rgba(26,126,200,0.1);
+}
+.insight-row:last-child { border-bottom: none; }
+.insight-icon { font-size: 18px; width: 28px; flex-shrink: 0; }
+.insight-text { flex: 1; font-size: 13px; line-height: 1.6; }
+.insight-text strong { color: var(--accent2); }
+
+/* SECTION TITLE */
+.section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--muted);
+  margin: 32px 0 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+/* EXPORT BTN */
+.export-btn {
+  background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 10px; padding: 8px 16px;
+  color: var(--success); font-size: 12px; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 600;
+  transition: all 0.2s; margin-left: auto; display: block;
+}
+.export-btn:hover { background: rgba(0,230,118,0.2); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🛡️</div>
+    <h1>SHARAF AI</h1>
+    <p>Marketing Command Center — Restricted Access</p>
+    <input class="login-input" type="password" id="pw-input" placeholder="••••••••" autocomplete="off"/>
+    <button class="login-btn" onclick="checkPassword()">ENTER DASHBOARD</button>
+    <div class="login-error" id="pw-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">⚡</div>
+      <div>
+        <h1>SHARAF AI COMMAND CENTER</h1>
+        <div class="topbar-sub">sharafstore.com — KKTC</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <div class="main" id="main-content">
+    <div class="loading"><div class="spinner"></div><p style="color:var(--muted);font-size:13px;">Loading intelligence...</p></div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://atjdjcimxpfmyxtnoskj.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0amRqY2lteHBmbXl4dG5vc2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjEwMzEsImV4cCI6MjA5MTg5NzAzMX0.e2nhiBzq5h7VtOFQ3VLKVfJPJyq6ajkrioYCAsJ9isY';
+const PASSWORD = 'sharaf2025';
+
+var allData = [];
+
+function checkPassword() {
+  var pw = document.getElementById('pw-input').value;
+  if (pw === PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+
+async function loadData() {
+  document.getElementById('main-content').innerHTML = '<div class="loading"><div class="spinner"></div><p style="color:var(--muted);font-size:13px;">Loading intelligence...</p></div>';
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/chat_logs?select=*&order=created_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    allData = await res.json();
+    renderDashboard(allData);
+  } catch(e) {
+    document.getElementById('main-content').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Failed to load data. Check your connection.</p></div>';
+  }
+}
+
+function renderDashboard(data) {
+  // ---- COMPUTE STATS ----
+  var total = data.length;
+  var sessions = [...new Set(data.map(d => d.session_id))].length;
+  var today = data.filter(d => new Date(d.created_at).toDateString() === new Date().toDateString()).length;
+  var mobile = data.filter(d => d.device === 'mobile').length;
+  var mobileP = total ? Math.round(mobile/total*100) : 0;
+
+  // Languages
+  var langs = {};
+  data.forEach(d => { if(d.language) { var l = d.language.split('-')[0]; langs[l] = (langs[l]||0)+1; } });
+  var topLang = Object.entries(langs).sort((a,b)=>b[1]-a[1]);
+
+  // Top products shown
+  var products = {};
+  data.forEach(d => {
+    if(d.products_shown && Array.isArray(d.products_shown)) {
+      d.products_shown.forEach(p => {
+        if(p.name) products[p.name] = (products[p.name]||0)+1;
+      });
+    }
+  });
+  var topProducts = Object.entries(products).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Keywords from user messages
+  var stopwords = ['bir','bu','ve','ile','için','ne','var','mi','de','da','ben','sen','bana','bunu','kadar','gibi','daha','çok','nasıl','hangi','acaba','the','and','for','what','how','is','a','i','to','do','have'];
+  var keywords = {};
+  data.forEach(d => {
+    if(d.user_message) {
+      d.user_message.toLowerCase().split(/\s+/).forEach(w => {
+        w = w.replace(/[^a-züğışöçÜĞİŞÖÇ]/g,'');
+        if(w.length > 2 && !stopwords.includes(w)) keywords[w] = (keywords[w]||0)+1;
+      });
+    }
+  });
+  var topKeywords = Object.entries(keywords).sort((a,b)=>b[1]-a[1]).slice(0,20);
+
+  // Hourly distribution
+  var hours = new Array(24).fill(0);
+  data.forEach(d => { if(d.created_at) hours[new Date(d.created_at).getHours()]++; });
+  var maxHour = Math.max(...hours);
+
+  // Cities / timezones
+  var cities = {};
+  data.forEach(d => { if(d.timezone) cities[d.timezone] = (cities[d.timezone]||0)+1; });
+  var topCities = Object.entries(cities).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+  // Referrers
+  var refs = {};
+  data.forEach(d => { if(d.referrer && d.referrer !== 'direct') { try { var u = new URL(d.referrer); refs[u.hostname] = (refs[u.hostname]||0)+1; } catch(e){} } });
+  var directCount = data.filter(d => !d.referrer || d.referrer === 'direct').length;
+  refs['Direct / None'] = directCount;
+  var topRefs = Object.entries(refs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // Remarketing insights
+  var uniqIPs = [...new Set(data.filter(d=>d.user_agent).map(d=>d.user_agent.substr(0,40)))].length;
+  var peakHour = hours.indexOf(maxHour);
+  var topKeyword = topKeywords[0] ? topKeywords[0][0] : '—';
+  var topProduct = topProducts[0] ? topProducts[0][0].substr(0,40) : '—';
+
+  // ---- RENDER ----
+  var html = '';
+
+  // Stats Row
+  html += '<div class="stats-grid">';
+  html += statCard('💬', total, 'Total Messages', '', '');
+  html += statCard('👥', sessions, 'Unique Sessions', '', '');
+  html += statCard('🔥', today, 'Today\'s Chats', '', '');
+  html += statCard('📱', mobileP + '%', 'Mobile Users', '', '');
+  html += statCard('🛍️', topProducts.length, 'Products Inquired', '', '');
+  html += statCard('🌍', topCities.length, 'Locations Detected', '', '');
+  html += '</div>';
+
+  // Remarketing Insights Box
+  html += '<div class="remarketing-card">';
+  html += '<div class="remarketing-title">⚡ Marketing Intelligence</div>';
+  html += insightRow('🎯', 'Peak engagement hour is <strong>' + peakHour + ':00–' + (peakHour+1) + ':00</strong> — schedule your social posts and campaigns for this time window.');
+  html += insightRow('🔥', 'Most searched keyword: <strong>"' + topKeyword + '"</strong> — use this in your ad copy and Instagram captions.');
+  html += insightRow('📦', 'Most recommended product: <strong>' + topProduct + '</strong> — consider featuring this in your next campaign.');
+  html += insightRow('📱', '<strong>' + mobileP + '%</strong> of customers use mobile — ensure your store pages are mobile-optimized.');
+  html += insightRow('💡', 'You have <strong>' + sessions + ' unique visitors</strong> who interacted with the chatbot — retarget them on Facebook/Instagram via pixel.');
+  html += '</div>';
+
+  // Products + Keywords
+  html += '<div class="grid-2">';
+
+  // Top Products
+  html += '<div class="card"><div class="card-title"><span>🛍️</span> Top Products Asked</div>';
+  if(topProducts.length) {
+    var maxP = topProducts[0][1];
+    topProducts.forEach(([name,count]) => {
+      html += '<div class="bar-item"><div class="bar-label" title="'+name+'">'+name.substr(0,28)+(name.length>28?'…':'')+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(count/maxP*100)+'%"></div></div><div class="bar-count">'+count+'</div></div>';
+    });
+  } else html += '<div class="empty"><div class="empty-icon">📦</div><p>No product data yet</p></div>';
+  html += '</div>';
+
+  // Keywords
+  html += '<div class="card"><div class="card-title"><span>🔍</span> Top Search Keywords</div>';
+  html += '<div class="keyword-cloud">';
+  var maxKW = topKeywords[0] ? topKeywords[0][1] : 1;
+  topKeywords.forEach(([w,c]) => {
+    var cls = c/maxKW > 0.6 ? 'hot' : c/maxKW > 0.3 ? 'warm' : '';
+    html += '<span class="keyword-tag '+cls+'">'+w+' <span style="opacity:0.5;font-size:10px;">'+c+'</span></span>';
+  });
+  if(!topKeywords.length) html += '<div class="empty"><div class="empty-icon">🔍</div><p>No keyword data yet</p></div>';
+  html += '</div></div>';
+  html += '</div>';
+
+  // Device + Languages + Sources
+  html += '<div class="grid-3">';
+
+  // Device
+  html += '<div class="card"><div class="card-title"><span>📱</span> Device Split</div>';
+  html += '<div class="donut-wrap">';
+  var desk = total - mobile;
+  var mPct = total ? Math.round(mobile/total*100) : 0;
+  var dPct = 100 - mPct;
+  var circumference = 2 * Math.PI * 45;
+  var mDash = (mPct/100)*circumference;
+  html += '<div class="donut-chart"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(26,126,200,0.1)" stroke-width="16"/><circle cx="60" cy="60" r="45" fill="none" stroke="'+( mPct>50?'var(--accent)':'var(--accent2)')+'" stroke-width="16" stroke-dasharray="'+mDash+' '+circumference+'" stroke-linecap="round"/><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(0,212,255,0.3)" stroke-width="16" stroke-dasharray="'+(circumference-mDash)+' '+circumference+'" stroke-dashoffset="'+(-mDash)+'" stroke-linecap="round"/></svg><div class="donut-center"><div class="big">'+mPct+'%</div><div class="small">MOBILE</div></div></div>';
+  html += '<div class="donut-legend">';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Mobile — '+mobile+'</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:rgba(0,212,255,0.4)"></div>Desktop — '+desk+'</div>';
+  html += '</div></div></div>';
+
+  // Languages
+  html += '<div class="card"><div class="card-title"><span>🌍</span> Languages</div>';
+  if(topLang.length) {
+    var maxL = topLang[0][1];
+    topLang.slice(0,5).forEach(([l,c]) => {
+      var flag = {tr:'🇹🇷',en:'🇬🇧',ar:'🇸🇦',de:'🇩🇪',fr:'🇫🇷',ru:'🇷🇺'}[l]||'🌐';
+      html += '<div class="bar-item"><div class="bar-label">'+flag+' '+l.toUpperCase()+'</div><div class="bar-track"><div class="bar-fill orange" style="width:'+Math.round(c/maxL*100)+'%"></div></div><div class="bar-count">'+c+'</div></div>';
+    });
+  } else html += '<div class="empty"><div class="empty-icon">🌍</div><p>No language data yet</p></div>';
+  html += '</div>';
+
+  // Traffic Sources
+  html += '<div class="card"><div class="card-title"><span>🔗</span> Traffic Sources</div>';
+  if(topRefs.length) {
+    var maxR = topRefs[0][1];
+    topRefs.forEach(([r,c]) => {
+      html += '<div class="bar-item"><div class="bar-label">'+r.substr(0,20)+'</div><div class="bar-track"><div class="bar-fill green" style="width:'+Math.round(c/maxR*100)+'%"></div></div><div class="bar-count">'+c+'</div></div>';
+    });
+  } else html += '<div class="empty"><div class="empty-icon">🔗</div><p>No source data yet</p></div>';
+  html += '</div>';
+  html += '</div>';
+
+  // Hourly Heatmap
+  html += '<div class="card" style="margin-bottom:20px;"><div class="card-title"><span>⏰</span> Activity by Hour (24h)</div>';
+  html += '<div class="heatmap">';
+  hours.forEach((c,i) => {
+    var intensity = maxHour > 0 ? c/maxHour : 0;
+    var bg = intensity === 0 ? 'var(--surface2)' :
+             'rgba(26,126,200,'+(0.15 + intensity*0.85)+')';
+    html += '<div class="heat-cell" style="background:'+bg+'" data-tip="'+i+':00 — '+c+' msgs"></div>';
+  });
+  html += '</div><div class="heat-hours">';
+  for(var i=0;i<24;i++) html += '<div class="heat-hour">'+(i%6===0?i+'h':'')+'</div>';
+  html += '</div></div>';
+
+  // Locations + Chat Feed
+  html += '<div class="grid-2">';
+
+  // Locations
+  html += '<div class="card"><div class="card-title"><span>📍</span> Top Locations (Timezone)</div>';
+  if(topCities.length) {
+    topCities.forEach(([city,count]) => {
+      var short = city.replace('Europe/','').replace('Asia/','').replace('America/','').replace('_',' ');
+      html += '<div class="geo-item"><div class="geo-flag">📍</div><div class="geo-info"><div class="geo-name">'+short+'</div><div class="geo-ip">'+city+'</div></div><div class="geo-count">'+count+' msgs</div></div>';
+    });
+  } else html += '<div class="empty"><div class="empty-icon">🗺️</div><p>No location data yet</p></div>';
+  html += '</div>';
+
+  // Recent Chats
+  html += '<div class="card"><div class="card-title"><span>💬</span> Recent Conversations</div><div class="chat-feed">';
+  if(data.length) {
+    data.slice(0,20).forEach(d => {
+      if(!d.user_message || d.user_message === 'test message') return;
+      var time = new Date(d.created_at).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      var sessShort = (d.session_id||'').substr(0,16)+'...';
+      var prods = d.products_shown && Array.isArray(d.products_shown) ? d.products_shown.slice(0,3) : [];
+      html += '<div class="chat-item">';
+      html += '<div class="chat-item-head"><span class="chat-session">'+sessShort+'</span><span class="chat-time">'+time+'</span></div>';
+      html += '<div class="chat-badges">';
+      if(d.device) html += '<span class="badge badge-device">'+d.device+'</span>';
+      if(d.language) html += '<span class="badge badge-lang">'+d.language.split('-')[0].toUpperCase()+'</span>';
+      if(d.timezone) html += '<span class="badge badge-city">'+d.timezone.split('/').pop().replace('_',' ')+'</span>';
+      html += '</div>';
+      html += '<div class="chat-q"><strong>Customer:</strong> '+escHtml(d.user_message)+'</div>';
+      if(d.bot_reply && d.bot_reply.length < 200) html += '<div class="chat-a">'+escHtml(d.bot_reply.substr(0,120))+(d.bot_reply.length>120?'…':'')+'</div>';
+      if(prods.length) {
+        html += '<div class="chat-products">';
+        prods.forEach(p => { html += '<span class="product-pill">'+escHtml((p.name||'').substr(0,25))+'</span>'; });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+  } else html += '<div class="empty"><div class="empty-icon">💬</div><p>No conversations yet</p></div>';
+  html += '</div></div>';
+  html += '</div>';
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function statCard(icon, value, label, change, dir) {
+  return '<div class="stat-card"><div class="stat-icon">'+icon+'</div><div class="stat-value">'+value+'</div><div class="stat-label">'+label+'</div>'+(change?'<div class="stat-change '+dir+'">'+change+'</div>':'')+'</div>';
+}
+function insightRow(icon, text) {
+  return '<div class="insight-row"><div class="insight-icon">'+icon+'</div><div class="insight-text">'+text+'</div></div>';
+}
+function escHtml(s) {
+  if(!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function exportCSV() {
+  if(!allData.length) return;
+  var cols = ['id','session_id','created_at','user_message','bot_reply','device','language','timezone','referrer','screen'];
+  var csv = cols.join(',') + '\n';
+  allData.forEach(d => {
+    csv += cols.map(c => '"'+(d[c]||'').toString().replace(/"/g,'""')+'"').join(',') + '\n';
+  });
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'sharaf-chat-logs-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+// Auto-refresh every 60 seconds
+setInterval(function() {
+  if(document.getElementById('dashboard').style.display !== 'none') loadData();
+}, 60000);
+</script>
+</body>
+</html>
